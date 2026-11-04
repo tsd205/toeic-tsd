@@ -36,6 +36,27 @@
       <h2>Danh sách Test</h2>
       <div id="testList">Đang tải...</div>
     </section>
+    <section class="panel">
+      <h2>Quản lý từ vựng</h2>
+      <label for="wordTest">Chọn Test:</label>
+      <select id="wordTest" style="width:100%;padding:12px;margin:10px 0"></select>
+      <h3>Thêm từng từ</h3>
+      <form id="wordForm">
+        <input id="english" placeholder="Tiếng Anh (bắt buộc)" required>
+        <input id="vietnamese" placeholder="Nghĩa tiếng Việt (bắt buộc)" required>
+        <input id="pronunciation" placeholder="Phiên âm (không bắt buộc)">
+        <input id="wordType" placeholder="Từ loại: n, v, adj... (không bắt buộc)">
+        <input id="example" placeholder="Câu ví dụ (không bắt buộc)">
+        <button type="submit">Thêm từ</button>
+      </form>
+      <h3>Nhập nhiều từ cùng lúc</h3>
+      <p>Mỗi dòng: <code>english | nghĩa tiếng Việt | phiên âm</code>. Ví dụ: <code>employee | nhân viên | /ɪmˈplɔɪ.iː/</code></p>
+      <textarea id="bulkWords" rows="6" placeholder="employee | nhân viên | /ɪmˈplɔɪ.iː/&#10;office | văn phòng"></textarea>
+      <button id="bulkAdd" type="button">Nhập hàng loạt</button>
+      <p id="wordMessage" role="status"></p>
+      <h3>Danh sách từ trong Test</h3>
+      <div id="wordList">Chọn Test để xem từ vựng.</div>
+    </section>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -65,7 +86,8 @@
       }
 
       document.getElementById("adminPage").hidden = false;
-      loadTests();
+      await loadTests();
+      await loadWordTests();
     }
 
     async function loadTests() {
@@ -129,6 +151,7 @@
       if (!error) {
         e.target.reset();
         loadTests();
+        loadWordTests();
       }
     };
 
@@ -144,7 +167,7 @@
         .eq("id", test.id);
 
       if (error) alert(error.message);
-      else loadTests();
+      else { loadTests(); loadWordTests(); }
     }
 
     async function deleteTest(test) {
@@ -155,9 +178,101 @@
         .eq("id", test.id);
 
       if (error) alert(error.message);
-      else loadTests();
+      else { loadTests(); loadWordTests(); }
     }
 
+    const wordTest = document.getElementById("wordTest");
+    const wordMessage = document.getElementById("wordMessage");
+    function showWordMessage(text, error=false) {
+      wordMessage.textContent = text;
+      wordMessage.style.color = error ? "#b42318" : "#176c40";
+    }
+    async function loadWordTests() {
+      const previous = wordTest.value;
+      const { data, error } = await db.from("tests").select("id,title").order("id");
+      if (error) return showWordMessage(error.message, true);
+      wordTest.replaceChildren();
+      for (const test of data) {
+        const option = new Option(test.title, String(test.id));
+        wordTest.add(option);
+      }
+      if (data.some(t => String(t.id) === previous)) wordTest.value = previous;
+      await loadWords();
+    }
+    async function loadWords() {
+      const list = document.getElementById("wordList");
+      list.replaceChildren();
+      if (!wordTest.value) { list.textContent = "Chưa có Test."; return; }
+      const { data, error } = await db.from("vocabulary")
+        .select("id,english,vietnamese,pronunciation,word_type,example")
+        .eq("test_id", Number(wordTest.value)).order("id").limit(1000);
+      if (error) { list.textContent = error.message; return; }
+      if (!data.length) { list.textContent = "Test này chưa có từ vựng."; return; }
+      for (const word of data) {
+        const item = document.createElement("div"); item.className = "test";
+        const name = document.createElement("strong");
+        name.textContent = word.english + " — " + word.vietnamese;
+        const info = document.createElement("p");
+        info.textContent = [word.pronunciation, word.word_type, word.example].filter(Boolean).join(" · ");
+        const speak = document.createElement("button"); speak.textContent = "🔊 Nghe";
+        speak.onclick = () => { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(word.english); u.lang = "en-US"; speechSynthesis.speak(u); };
+        const edit = document.createElement("button"); edit.textContent = "Sửa";
+        edit.onclick = async () => {
+          const english = prompt("Tiếng Anh:", word.english);
+          if (english === null || !english.trim()) return;
+          const vietnamese = prompt("Nghĩa tiếng Việt:", word.vietnamese);
+          if (vietnamese === null || !vietnamese.trim()) return;
+          const pronunciation = prompt("Phiên âm:", word.pronunciation || "");
+          if (pronunciation === null) return;
+          const word_type = prompt("Từ loại:", word.word_type || "");
+          if (word_type === null) return;
+          const example = prompt("Ví dụ:", word.example || "");
+          if (example === null) return;
+          const { error } = await db.from("vocabulary").update({english:english.trim(),vietnamese:vietnamese.trim(),pronunciation,word_type,example}).eq("id",word.id);
+          if (error) showWordMessage(error.message,true); else { showWordMessage("Đã sửa từ."); loadWords(); }
+        };
+        const del = document.createElement("button"); del.textContent = "Xóa"; del.className = "danger";
+        del.onclick = async () => {
+          if (!confirm("Xóa từ " + word.english + "?")) return;
+          const { error } = await db.from("vocabulary").delete().eq("id",word.id);
+          if (error) showWordMessage(error.message,true); else { showWordMessage("Đã xóa từ."); loadWords(); }
+        };
+        item.append(name,info,speak,edit,del); list.append(item);
+      }
+      if (data.length === 1000) showWordMessage("Đang hiển thị 1000 từ đầu tiên.");
+    }
+    wordTest.onchange = loadWords;
+    document.getElementById("wordForm").onsubmit = async e => {
+      e.preventDefault();
+      if (!wordTest.value) return showWordMessage("Hãy tạo và chọn Test trước.",true);
+      const row = {
+        test_id:Number(wordTest.value), english:document.getElementById("english").value.trim(),
+        vietnamese:document.getElementById("vietnamese").value.trim(),
+        pronunciation:document.getElementById("pronunciation").value.trim(),
+        word_type:document.getElementById("wordType").value.trim(),
+        example:document.getElementById("example").value.trim()
+      };
+      if (!row.english || !row.vietnamese) return showWordMessage("Cần nhập tiếng Anh và nghĩa.",true);
+      const { error } = await db.from("vocabulary").insert(row);
+      if (error) showWordMessage(error.message,true);
+      else { e.target.reset(); showWordMessage("Đã thêm từ!"); await loadWords(); }
+    };
+    document.getElementById("bulkAdd").onclick = async () => {
+      if (!wordTest.value) return showWordMessage("Hãy chọn Test trước.",true);
+      const lines = document.getElementById("bulkWords").value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+      if (!lines.length) return showWordMessage("Chưa nhập danh sách từ.",true);
+      if (lines.length > 200) return showWordMessage("Mỗi lần chỉ nhập tối đa 200 từ.",true);
+      const rows = [];
+      for (let i=0;i<lines.length;i++) {
+        const fields = lines[i].split("|").map(s=>s.trim());
+        if (fields.length < 2 || fields.length > 3 || !fields[0] || !fields[1])
+          return showWordMessage("Dòng " + (i+1) + " sai định dạng. Dùng: english | nghĩa | phiên âm",true);
+        rows.push({test_id:Number(wordTest.value),english:fields[0],vietnamese:fields[1],pronunciation:fields[2]||""});
+      }
+      const { error } = await db.from("vocabulary").insert(rows);
+      if (error) showWordMessage(error.message,true);
+      else { document.getElementById("bulkWords").value=""; showWordMessage("Đã thêm " + rows.length + " từ!"); await loadWords(); }
+    };
     init();
   </script>
 </body>

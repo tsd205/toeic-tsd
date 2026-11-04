@@ -1,9 +1,30 @@
 <!doctype html>
-<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TOEIC Dashboard</title><link rel="stylesheet" href="css/style.css"></head>
-<body><main class="wrap"><section class="card"><div class="top"><div class="brand">TOEIC VOCABULARY TSD</div><button style="width:auto;margin:0;padding:9px 13px" onclick="logoutUser()">Đăng xuất</button></div>
-<h1 id="welcome">Đang tải...</h1><p>Giai đoạn 1 đã kết nối xác thực. Ở giai đoạn tiếp theo, danh sách Test và bài luyện nghe sẽ được kết nối với database.</p>
-<div id="role" class="message success"></div><p><a href="login.html">Trang đăng nhập</a></p></section></main>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TOEIC TSD - Chọn Test</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="css/learning.css"></head>
+<body><main class="learning"><header><strong>TOEIC VOCABULARY TSD</strong><button onclick="logoutUser()">Đăng xuất</button></header>
+<section class="panel"><h1 id="welcome">Đang tải...</h1><p id="role"></p><p>Chọn một hoặc nhiều Test để luyện tập.</p><div id="testChoices">Đang tải danh sách...</div>
+<p><button type="button" id="selectAll">Chọn tất cả</button> <button type="button" id="clearAll">Bỏ chọn</button></p>
+<fieldset><legend>Chế độ học</legend><label><input type="radio" name="mode" value="sequential" checked> Lần lượt từng Test</label><label><input type="radio" name="mode" value="random"> Trộn ngẫu nhiên các Test</label></fieldset>
+<p id="notice" role="status"></p><button id="start">Bắt đầu luyện tập</button></section></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/config.js"></script><script src="js/auth.js"></script>
 <script>
-(async()=>{const result=await loadProfile();if(result){document.getElementById('welcome').textContent='Xin chào, '+(result.profile.full_name||result.user.email);document.getElementById('role').textContent='Vai trò: '+result.profile.role;}})();
+(async()=>{
+ const user=await requireLogin(); if(!user)return;
+ const {data:profile}=await supabaseClient.from('profiles').select('full_name,role').eq('id',user.id).single();
+ document.getElementById('welcome').textContent='Xin chào, '+(profile?.full_name||user.email);
+ document.getElementById('role').textContent='Vai trò: '+(profile?.role||'student');
+ if(profile?.role==='admin') { const a=document.createElement('a');a.href='admin.html';a.textContent='Mở trang quản trị';document.getElementById('role').append(' · ',a); }
+ const {data,error}=await supabaseClient.from('tests').select('id,title,description').eq('is_active',true).order('id');
+ const box=document.getElementById('testChoices');box.replaceChildren();
+ if(error){box.textContent=error.message;return;}
+ if(!data.length){box.textContent='Chưa có Test nào đang hoạt động.';return;}
+ for(const test of data){const label=document.createElement('label');label.className='choice';const check=document.createElement('input');check.type='checkbox';check.value=String(test.id);check.name='test';const span=document.createElement('span');span.textContent=test.title+(test.description?' — '+test.description:'');label.append(check,span);box.append(label);}
+ document.getElementById('selectAll').onclick=()=>box.querySelectorAll('input').forEach(x=>x.checked=true);
+ document.getElementById('clearAll').onclick=()=>box.querySelectorAll('input').forEach(x=>x.checked=false);
+ document.getElementById('start').onclick=()=>{
+ const ids=[...box.querySelectorAll('input:checked')].map(x=>Number(x.value));
+ if(!ids.length){document.getElementById('notice').textContent='Bạn cần chọn ít nhất 1 Test.';return;}
+ const mode=document.querySelector('input[name="mode"]:checked').value;
+ sessionStorage.setItem('toeic_selection',JSON.stringify({ids,mode}));location.href='practice.html';
+ };
+})();
 </script></body></html>
