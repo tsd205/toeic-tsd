@@ -1,1 +1,172 @@
-<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cá nhân - TOEIC TSD</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="css/learning.css"><link rel="stylesheet" href="css/theme.css"><script src="js/theme.js"></script></head><body><main class="learning"><header><strong>TOEIC VOCABULARY TSD</strong><nav class="nav-actions"><a href="dashboard.html">← Dashboard</a><button class="theme-toggle" onclick="toggleTheme()">🌙 Chế độ tối</button><button onclick="logoutUser()">Đăng xuất</button></nav></header><section class="panel"><h1>👤 Trang cá nhân</h1><p id="profileName">Đang tải...</p><p id="profileEmail"></p><p id="profileRole"></p><h2>📊 Kết quả học tập</h2><div class="profile-grid"><div class="stat"><b id="attemptCount">—</b><p>Lượt luyện tập</p></div><div class="stat"><b id="bestScore">—</b><p>Điểm cao nhất</p></div></div><h3>Lịch sử gần đây</h3><div id="history">Đang tải...</div><h3>🔐 Đổi mật khẩu</h3><form id="changePassword"><label>Mật khẩu mới</label><div class="password-field"><input id="newPassword" type="password" minlength="8" required placeholder="Ít nhất 8 ký tự"><button class="eye-toggle" type="button" onclick="togglePassword('newPassword',this)">👁</button></div><button type="submit">Cập nhật mật khẩu</button></form><p id="passwordStatus" role="status"></p><div class="profile-footer"><h3>💙 Lời chúc</h3><p>Chúc mọi người luyện tập vui vẻ và hiệu quả!</p><p>Cố gắng k mất pi nhé ((:</p><h3>☕ Ủng hộ dự án</h3><p>Nếu thấy website hữu ích, bạn có thể ủng hộ hoàn toàn tự nguyện.</p><div class="qr-placeholder">QR ủng hộ sẽ được thêm khi tác giả cung cấp ảnh</div><p>© 2026 TOEIC TSD · Developed by Đỗ Thanh Tú · All rights reserved.</p></div></section></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/config.js"></script><script src="js/auth.js"></script><script src="js/profile.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Cá nhân - TOEIC TSD</title>
+
+    <!-- CSS giao diện -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/learning.css">
+    <link rel="stylesheet" href="css/theme.css">
+
+    <!-- Chế độ sáng/tối -->
+    <script src="js/theme.js"></script>
+</head>
+
+<body>
+    <main class="learning">
+
+        <!-- THANH ĐIỀU HƯỚNG -->
+        <header>
+            <strong>TOEIC VOCABULARY TSD</strong>
+
+            <nav class="nav-actions">
+                <a href="dashboard.html">
+                    ← Dashboard
+                </a>
+
+                <button
+                    class="theme-toggle"
+                    onclick="toggleTheme()">
+                    🌙 Chế độ tối
+                </button>
+
+                <button onclick="logoutUser()">
+                    Đăng xuất
+                </button>
+            </nav>
+        </header>
+
+        <!-- TRANG CÁ NHÂN -->
+        <section class="panel">
+
+            <h1>👤 Trang cá nhân</h1>
+
+            <!-- Thông tin tài khoản -->
+            <p id="profileName">Đang tải...</p>
+            <p id="profileEmail"></p>
+            <p id="profileRole"></p>
+
+            <!-- KẾT QUẢ HỌC TẬP -->
+            <h2>📊 Kết quả học tập</h2>
+
+            <div class="profile-grid">
+
+                <div class="stat">
+                    <b id="attemptCount">—</b>
+                    <p>Lượt luyện tập</p>
+                </div>
+
+                <div class="stat">
+                    <b id="bestScore">—</b>
+                    <p>Điểm cao nhất</p>
+                </div>
+
+            </div>
+
+            <!-- LỊCH SỬ LUYỆN TẬP -->
+            <h3>Lịch sử gần đây</h3>
+
+            <div id="history">
+                Đang tải...
+            </div>
+
+            <!-- ĐỔI MẬT KHẨU -->
+            <h3>🔐 Đổi mật khẩu</h3>
+
+            <form id="changePassword">
+
+                <label for="newPassword">
+                    Mật khẩu mới
+                </label>
+
+                <div class="password-field">
+
+                    <input
+                        id="newPassword"
+                        type="password"
+                        minlength="8"
+                        required
+                        placeholder="Ít nhất 8 ký tự"
+                    >
+
+                    <button
+                        class="eye-toggle"
+                        type="button"
+                        onclick="togglePassword('newPassword', this)">
+                        👁
+                    </button>
+
+                </div>
+
+                <button type="submit">
+                    Cập nhật mật khẩu
+                </button>
+
+            </form>
+
+            <p id="passwordStatus" role="status"></p>
+
+            <!-- LỜI CHÚC, QR VÀ BẢN QUYỀN -->
+            <div class="profile-footer">
+
+                <h3>💙 Lời chúc</h3>
+
+                <p>
+                    Chúc mọi người luyện tập vui vẻ
+                    và hiệu quả! 💙
+                </p>
+
+                <p>Cố gắng k mất pi nhé ((:</p>
+
+                <!-- ỦNG HỘ DỰ ÁN -->
+                <h3>
+                    ☕ Ủng hộ dự án,
+                    nhà sáng tạo nhỏ ((:
+                </h3>
+
+                <p>
+                    Nếu thấy website hữu ích,
+                    bạn có thể ủng hộ hoàn toàn tự nguyện.
+                </p>
+
+                <!-- CHÈN ẢNH QR TẠI ĐÂY -->
+                <div class="qr-placeholder">
+
+                    <img
+                        src="qr-ung-ho.png"
+                        alt="QR ủng hộ TOEIC TSD"
+                        style="
+                            width: 220px;
+                            max-width: 100%;
+                            border-radius: 12px;
+                        "
+                    >
+
+                </div>
+
+                <!-- BẢN QUYỀN -->
+                <p>
+                    © 2026 TOEIC TSD ·
+                    Developed by TSD ·
+                    All rights reserved.
+                </p>
+
+            </div>
+
+        </section>
+    </main>
+
+    <!-- THƯ VIỆN SUPABASE -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- JAVASCRIPT -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/profile.js"></script>
+
+</body>
+</html>
