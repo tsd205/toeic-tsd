@@ -1,0 +1,10 @@
+*{box-sizing:border-box}body{margin:0;background:#f4f6fb;color:#182230;font-family:Arial,sans-serif}
+.wrap{max-width:520px;margin:7vh auto;padding:18px}.brand{font-weight:800;color:#315efb;letter-spacing:.3px}
+.card{background:#fff;border:1px solid #e4e9f2;border-radius:18px;padding:28px;box-shadow:0 8px 30px #1725540d;margin-top:16px}
+h1{font-size:26px;margin:8px 0}p{color:#687386;line-height:1.55}
+label{display:block;font-size:13px;font-weight:700;margin:16px 0 7px}
+input{width:100%;padding:13px;border:1px solid #cfd7e5;border-radius:10px;font-size:15px}
+button{width:100%;border:0;background:#315efb;color:white;padding:13px;border-radius:10px;font-weight:700;font-size:15px;margin-top:18px;cursor:pointer}
+a{color:#315efb;text-decoration:none}.message{padding:12px;border-radius:9px;margin-top:14px;display:none;line-height:1.5}
+.message.success,.message.error{display:block}.success{background:#e9f7ef;color:#12683b}.error{background:#fff0f0;color:#a52d2d}
+.note{font-size:12px;color:#687386}.top{display:flex;justify-content:space-between;align-items:center}

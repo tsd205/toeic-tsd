@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TOEIC Dashboard</title><link rel="stylesheet" href="css/style.css"></head>
+<body><main class="wrap"><section class="card"><div class="top"><div class="brand">TOEIC VOCABULARY</div><button style="width:auto;margin:0;padding:9px 13px" onclick="logoutUser()">Đăng xuất</button></div>
+<h1 id="welcome">Đang tải...</h1><p>Giai đoạn 1 đã kết nối xác thực. Ở giai đoạn tiếp theo, danh sách Test và bài luyện nghe sẽ được kết nối với database.</p>
+<div id="role" class="message success"></div><p><a href="login.html">Trang đăng nhập</a></p></section></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/config.js"></script><script src="js/auth.js"></script>
+<script>
+(async()=>{const result=await loadProfile();if(result){document.getElementById('welcome').textContent='Xin chào, '+(result.profile.full_name||result.user.email);document.getElementById('role').textContent='Vai trò: '+result.profile.role;}})();
+</script></body></html>
