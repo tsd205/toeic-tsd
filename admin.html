@@ -54,6 +54,11 @@
       <textarea id="bulkWords" rows="6" placeholder="employee | nhân viên | /ɪmˈplɔɪ.iː/&#10;office | văn phòng"></textarea>
       <button id="bulkAdd" type="button">Nhập hàng loạt</button>
       <p id="wordMessage" role="status"></p>
+      <div style="margin-top:18px;padding:15px;border:1px solid #f3b8bd;border-radius:10px;background:#fff8f8">
+        <h3 style="margin-top:0">Xóa từ vựng của Test đang chọn</h3>
+        <p>Chỉ xóa từ vựng của Test được chọn ở trên, không xóa Test.</p>
+        <button id="deleteAllWords" class="danger" type="button">🗑️ Xóa toàn bộ từ vựng của Test này</button>
+      </div>
       <h3>Danh sách từ trong Test</h3>
       <div id="wordList">Chọn Test để xem từ vựng.</div>
     </section>
@@ -241,6 +246,39 @@
       }
       if (data.length === 1000) showWordMessage("Đang hiển thị 1000 từ đầu tiên.");
     }
+    document.getElementById("deleteAllWords").onclick = async () => {
+      const button = document.getElementById("deleteAllWords");
+      const selectedId = Number(wordTest.value);
+      const selectedTitle = wordTest.selectedOptions[0]?.textContent || "Test";
+      if (!selectedId || button.disabled) return showWordMessage("Hãy chọn Test trước.", true);
+
+      const { count, error: countError } = await db.from("vocabulary")
+        .select("id", { count: "exact", head: true }).eq("test_id", selectedId);
+      if (countError) return showWordMessage("Không đếm được từ: " + countError.message, true);
+      if (!count) return showWordMessage(selectedTitle + " chưa có từ vựng để xóa.");
+
+      if (!confirm(`Bạn sắp XÓA ${count} từ vựng trong ${selectedTitle}.\nHành động này không thể hoàn tác. Tiếp tục?`)) return;
+      const typed = prompt(`Để xác nhận xóa ${count} từ của ${selectedTitle}, nhập chính xác: XOA`);
+      if (typed !== "XOA") return showWordMessage("Đã hủy xóa.");
+
+      button.disabled = true;
+      showWordMessage(`Đang xóa ${count} từ của ${selectedTitle}...`);
+      try {
+        // Lọc theo test_id, tránh ảnh hưởng đến các Test khác.
+        const { error: deleteError } = await db.from("vocabulary")
+          .delete().eq("test_id", selectedId);
+        if (deleteError) return showWordMessage("Xóa thất bại: " + deleteError.message, true);
+        const { count: remaining, error: verifyError } = await db.from("vocabulary")
+          .select("id", { count: "exact", head: true }).eq("test_id", selectedId);
+        if (verifyError) return showWordMessage("Đã gửi lệnh xóa nhưng chưa kiểm tra được: " + verifyError.message, true);
+        if (remaining) return showWordMessage(`Vẫn còn ${remaining} từ trong ${selectedTitle}. Hãy kiểm tra quyền xóa (RLS) trong Supabase.`, true);
+        showWordMessage(`Đã xóa toàn bộ ${count} từ trong ${selectedTitle}.`);
+        if (Number(wordTest.value) === selectedId) await loadWords();
+      } finally {
+        button.disabled = false;
+      }
+    };
+
     wordTest.onchange = loadWords;
     document.getElementById("wordForm").onsubmit = async e => {
       e.preventDefault();
