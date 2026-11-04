@@ -15,6 +15,7 @@ async function registerUser(event) {
   const fullName = document.getElementById("fullName").value.trim();
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
+  if (password !== document.getElementById("confirmPassword").value) return message("Mật khẩu xác nhận không khớp.", true);
   if (password.length < 8) return message("Mật khẩu cần ít nhất 8 ký tự.", true);
 
   const { error } = await supabaseClient.auth.signUp({

@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Đăng ký TOEIC</title><link rel="stylesheet" href="css/style.css"></head>
-<body><main class="wrap"><div class="brand">TOEIC VOCABULARY TSD</div><section class="card">
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Đăng ký TOEIC</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="css/theme.css"><script src="js/theme.js"></script></head>
+<body><button class="theme-toggle theme-fixed" type="button" onclick="toggleTheme()">🌙 Chế độ tối</button><main class="wrap"><div class="brand">TOEIC VOCABULARY TSD</div><section class="card">
 <h1>Tạo tài khoản</h1><p>Tài khoản mới mặc định là học viên.</p>
 <form onsubmit="registerUser(event)">
 <label>Họ và tên</label><input id="fullName" required placeholder="Tên của bạn">
 <label>Email</label><input id="email" type="email" required placeholder="email@example.com">
-<label>Mật khẩu</label><input id="password" type="password" minlength="8" required placeholder="Ít nhất 8 ký tự">
-<button type="submit">Đăng ký</button></form><div id="message" class="message"></div>
+<label>Mật khẩu</label><div class="password-field"><input id="password" type="password" minlength="8" required placeholder="Ít nhất 8 ký tự"><button class="eye-toggle" type="button" onclick="togglePassword('password',this)" aria-label="Hiện mật khẩu">👁</button></div>
+<label for="confirmPassword">Xác nhận mật khẩu</label><div class="password-field"><input id="confirmPassword" type="password" minlength="8" required placeholder="Nhập lại mật khẩu"><button class="eye-toggle" type="button" onclick="togglePassword('confirmPassword',this)" aria-label="Hiện mật khẩu">👁</button></div><button type="submit">Đăng ký</button></form><div id="message" class="message"></div>
 <p class="note">Đã có tài khoản? <a href="login.html">Đăng nhập</a></p></section></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/config.js"></script><script src="js/auth.js"></script></body></html>

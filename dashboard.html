@@ -1,6 +1,6 @@
 <!doctype html>
-<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TOEIC TSD - Chọn Test</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="css/learning.css"></head>
-<body><main class="learning"><header><strong>TOEIC VOCABULARY TSD</strong><button onclick="logoutUser()">Đăng xuất</button></header>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TOEIC TSD - Chọn Test</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="css/learning.css"><link rel="stylesheet" href="css/theme.css"><script src="js/theme.js"></script></head>
+<body><main class="learning"><header><strong>TOEIC VOCABULARY TSD</strong><nav class="nav-actions"><a href="profile.html">👤 Cá nhân</a><button class="theme-toggle" type="button" onclick="toggleTheme()">🌙 Chế độ tối</button><button onclick="logoutUser()">Đăng xuất</button></nav></header>
 <section class="panel"><h1 id="welcome">Đang tải...</h1><p id="role"></p><p>Chọn một hoặc nhiều Test để luyện tập.</p><div id="testChoices">Đang tải danh sách...</div>
 <p><button type="button" id="selectAll">Chọn tất cả</button> <button type="button" id="clearAll">Bỏ chọn</button></p>
 <fieldset><legend>Chế độ học</legend><label><input type="radio" name="mode" value="sequential" checked> Lần lượt từng Test</label><label><input type="radio" name="mode" value="random"> Trộn ngẫu nhiên các Test</label></fieldset>

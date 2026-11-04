@@ -25,6 +25,7 @@
    const rank=new Map(ids.map((id,i)=>[id,i]));words.sort((a,b)=>(rank.get(a.test_id)??999)-(rank.get(b.test_id)??999)||a.id-b.id);
  }
  let index=0,englishCorrect=0,vietnameseCorrect=0;
+ const submitted=[];
  const exercise=document.getElementById('exercise'),form=document.getElementById('answerForm'),feedback=document.getElementById('feedback'),next=document.getElementById('next');
  exercise.hidden=false;
  const normalize=s=>s.normalize('NFC').trim().toLocaleLowerCase('vi').replace(/\s+/g,' ').replace(/[.!?]+$/g,'');
@@ -42,17 +43,29 @@
    // Accept alternatives separated by semicolons; commas remain part of the answer.
    const vi=word.vietnamese.split(';').some(v=>normalize(document.getElementById('answerVietnamese').value)===normalize(v));
    if(en)englishCorrect++;if(vi)vietnameseCorrect++;
+   submitted.push({word,submitted_english:document.getElementById("answerEnglish").value.trim(),submitted_vietnamese:document.getElementById("answerVietnamese").value.trim(),en,vi});
    feedback.replaceChildren();const p=document.createElement('p');p.textContent=`Tiếng Anh: ${en?'✓ Đúng':'✗ Sai'} · Nghĩa: ${vi?'✓ Đúng':'✗ Sai'}`;
    const answer=document.createElement('p');answer.textContent=`Đáp án: ${word.english} — ${word.vietnamese}${word.pronunciation?' '+word.pronunciation:''}`;
    feedback.append(p,answer);form.hidden=true;next.hidden=false;next.textContent=index===words.length-1?'Xem kết quả':'Từ tiếp theo →';
  };
- next.onclick=()=>{
+ async function saveResults(){
+  // A separate attempt per Test preserves the existing schema and works with multi-Test sessions.
+  const grouped=new Map();for(const a of submitted){if(!grouped.has(a.word.test_id))grouped.set(a.word.test_id,[]);grouped.get(a.word.test_id).push(a);}
+  for(const [testId,items] of grouped){
+   const {data:attempt,error}=await supabaseClient.from('attempts').insert({user_id:user.id,test_id:testId,score:items.filter(x=>x.en&&x.vi).length,total:items.length}).select('id').single();
+   if(error)throw new Error(error.message);
+   const answers=items.map(x=>({attempt_id:attempt.id,vocabulary_id:x.word.id,submitted_english:x.submitted_english,submitted_vietnamese:x.submitted_vietnamese,is_correct:x.en&&x.vi}));
+   for(let i=0;i<answers.length;i+=100){const {error:answerError}=await supabaseClient.from('attempt_answers').insert(answers.slice(i,i+100));if(answerError)throw new Error(answerError.message);}
+  }
+ }
+ next.onclick=async()=>{
    index++;if(index<words.length){render();return;}
-   exercise.hidden=true;progress.textContent='Đã hoàn thành!';const result=document.getElementById('results');result.hidden=false;
+   next.disabled=true;exercise.hidden=true;progress.textContent='Đã hoàn thành!';const result=document.getElementById('results');result.hidden=false;
    const h=document.createElement('h2');h.textContent='Kết quả luyện tập';
    const p=document.createElement('p');p.textContent=`Tổng ${words.length} từ · Tiếng Anh đúng ${englishCorrect}/${words.length} · Nghĩa đúng ${vietnameseCorrect}/${words.length}`;
-   const note=document.createElement('p');note.textContent='Phiên bản này chưa lưu điểm vào tài khoản; phần lưu lịch sử sẽ được bổ sung sau.';
+   const note=document.createElement('p');note.textContent='Đang lưu kết quả...';
    const a=document.createElement('a');a.href='dashboard.html';a.textContent='← Chọn Test khác';result.append(h,p,note,a);
+   try{await saveResults();note.textContent='✓ Đã lưu kết quả vào tài khoản. Xem trong trang Cá nhân.';}catch(err){note.textContent='⚠ Chưa lưu được kết quả: '+err.message+' (Kiểm tra đã chạy supabase/phase3_results.sql chưa).';}
  };
  render();
 })();
