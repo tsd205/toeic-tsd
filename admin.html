@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quản trị TOEIC TSD</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { background:#f4f7ff; font-family:Arial,sans-serif; }
+    .admin { max-width:900px; margin:40px auto; padding:20px; }
+    .panel { background:white; padding:24px; border-radius:16px; margin:18px 0; }
+    input,textarea { width:100%; box-sizing:border-box; padding:12px; margin:8px 0; border:1px solid #ccd6e8; border-radius:8px; }
+    button { padding:11px 18px; background:#315cff; color:white; border:0; border-radius:8px; cursor:pointer; margin:4px; }
+    .danger { background:#dc3545; }
+    .test { border-bottom:1px solid #eee; padding:15px 0; }
+    #message { color:#176c40; }
+  </style>
+</head>
+<body>
+  <main class="admin" id="adminPage" hidden>
+    <h1>Quản trị TOEIC TSD</h1>
+    <p>Quản lý các bộ Test từ vựng</p>
+
+    <section class="panel">
+      <h2>Thêm Test mới</h2>
+      <form id="testForm">
+        <input id="title" placeholder="Tên Test (VD: Test 2)" required>
+        <textarea id="description" placeholder="Mô tả Test"></textarea>
+        <button type="submit">Thêm Test</button>
+      </form>
+      <p id="message"></p>
+    </section>
+
+    <section class="panel">
+      <h2>Danh sách Test</h2>
+      <div id="testList">Đang tải...</div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script>
+    const db = window.supabase.createClient(
+      window.TOEIC_CONFIG.SUPABASE_URL,
+      window.TOEIC_CONFIG.SUPABASE_ANON_KEY
+    );
+
+    async function init() {
+      const { data: { user } } = await db.auth.getUser();
+      if (!user) {
+        location.href = "login.html";
+        return;
+      }
+
+      const { data: profile, error } = await db
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+      if (error || profile?.role !== "admin") {
+        document.body.textContent = "Bạn không có quyền Admin.";
+        return;
+      }
+
+      document.getElementById("adminPage").hidden = false;
+      loadTests();
+    }
+
+    async function loadTests() {
+      const list = document.getElementById("testList");
+      const { data, error } = await db
+        .from("tests")
+        .select("id,title,description")
+        .order("title");
+
+      if (error) {
+        list.textContent = error.message;
+        return;
+      }
+
+      list.replaceChildren();
+
+      if (!data.length) {
+        list.textContent = "Chưa có Test nào.";
+        return;
+      }
+
+      data.forEach(test => {
+        const item = document.createElement("div");
+        item.className = "test";
+
+        const name = document.createElement("h3");
+        name.textContent = test.title;
+
+        const desc = document.createElement("p");
+        desc.textContent = test.description || "Chưa có mô tả";
+
+        const edit = document.createElement("button");
+        edit.textContent = "Sửa";
+        edit.onclick = () => editTest(test);
+
+        const del = document.createElement("button");
+        del.textContent = "Xóa";
+        del.className = "danger";
+        del.onclick = () => deleteTest(test);
+
+        item.append(name, desc, edit, del);
+        list.append(item);
+      });
+    }
+
+    document.getElementById("testForm").onsubmit = async e => {
+      e.preventDefault();
+
+      const title = document.getElementById("title").value.trim();
+      const description = document.getElementById("description").value.trim();
+
+      const { error } = await db.from("tests").insert({
+        title,
+        description,
+        is_active: true
+      });
+
+      document.getElementById("message").textContent =
+        error ? error.message : "Thêm Test thành công!";
+
+      if (!error) {
+        e.target.reset();
+        loadTests();
+      }
+    };
+
+    async function editTest(test) {
+      const title = prompt("Tên Test mới:", test.title);
+      if (title === null || !title.trim()) return;
+
+      const description = prompt("Mô tả:", test.description || "");
+      if (description === null) return;
+
+      const { error } = await db.from("tests")
+        .update({ title: title.trim(), description })
+        .eq("id", test.id);
+
+      if (error) alert(error.message);
+      else loadTests();
+    }
+
+    async function deleteTest(test) {
+      if (!confirm("Xóa " + test.title + " và dữ liệu liên quan?")) return;
+
+      const { error } = await db.from("tests")
+        .delete()
+        .eq("id", test.id);
+
+      if (error) alert(error.message);
+      else loadTests();
+    }
+
+    init();
+  </script>
+</body>
+</html>
