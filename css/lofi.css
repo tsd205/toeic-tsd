@@ -237,3 +237,42 @@ button:not(:disabled):active {
   }
 }
 
+
+/* Chọn 3 chế độ Study Sounds */
+#tsdTrackSelect {
+  display: block;
+  width: 100%;
+  padding: 11px 12px;
+  margin: 8px 0 18px;
+  background: #242a2e;
+  color: #edf0ed;
+  border: 1px solid #414a4c;
+  border-radius: 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+#tsdTrackSelect:focus {
+  outline: 2px solid #a8beb5;
+  outline-offset: 2px;
+}
+
+#tsdMusicFab.is-playing {
+  border-color: #a8beb5;
+  box-shadow: 0 0 0 4px rgba(168, 190, 181, .10);
+}
+
+#tsdMusicPanel {
+  color: #edf0ed;
+}
+
+#tsdMusicPanel label {
+  font-size: 12px;
+  color: #a3aca8;
+}
+
+#tsdMusicPanel .tsd-music-check {
+  color: #c7cfcb;
+}
+
+
