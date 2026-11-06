@@ -1,0 +1,123 @@
+
+/* TOEIC TSD - Midnight Chillhop */
+
+:root {
+  --bg: #101216;
+  --surface: #1b1f23;
+  --surface-hover: #242a2e;
+  --border: #30363a;
+  --text: #edf0ed;
+  --muted: #a3aca8;
+  --accent: #a8beb5;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bg) !important;
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* Thẻ nội dung */
+.card,
+.panel,
+.test-card,
+.word-card,
+.practice-card,
+.stat-card,
+.auth-card,
+.profile-card {
+  background: var(--surface) !important;
+  color: var(--text);
+  border: 1px solid var(--border) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, .15);
+  transition: transform .25s, border-color .25s;
+}
+
+@media (hover: hover) {
+  .card:hover,
+  .test-card:hover,
+  .word-card:hover {
+    transform: translateY(-2px);
+    border-color: #52615d !important;
+  }
+}
+
+/* Chữ và liên kết */
+h1, h2, h3, h4 {
+  color: var(--text);
+}
+
+a {
+  color: var(--accent);
+}
+
+/* Ô nhập */
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+  background: var(--surface-hover);
+  color: var(--text);
+  border: 1px solid #40484c;
+  border-radius: 10px;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #929e9a;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid rgba(168, 190, 181, .55);
+}
+
+/* Nút bấm */
+button {
+  transition: transform .2s, filter .2s;
+}
+
+button:not(:disabled):hover {
+  filter: brightness(1.08);
+}
+
+button:not(:disabled):active {
+  transform: scale(.98);
+}
+
+/* Hiệu ứng đúng */
+.lofi-correct {
+  animation: correctGlow .5s ease;
+}
+
+@keyframes correctGlow {
+  50% {
+    box-shadow: 0 0 0 2px #8fc6a7,
+                0 0 25px rgba(143, 198, 167, .2);
+  }
+}
+
+/* Hiệu ứng sai */
+.lofi-wrong {
+  animation: wrongShake .35s ease;
+}
+
+@keyframes wrongShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-2px); }
+}
+
+/* Tôn trọng cài đặt giảm chuyển động */
+@media (prefers-reduced-motion: reduce) {
+  .lofi-correct,
+  .lofi-wrong {
+    animation: none;
+  }
+}
