@@ -4,12 +4,30 @@ const db = window.supabase.createClient(
     window.TOEIC_CONFIG.SUPABASE_ANON_KEY
 );
 
-// ===== KIỂM TRA QUYỀN ADMIN =====
+const $ = id => document.getElementById(id);
+
+const wordTest = $("wordTest");
+const wordMessage = $("wordMessage");
+
+// Ghi nhớ Test đang mở
+let openedTestId = null;
+
+// ===== THÔNG BÁO =====
+
+function showWordMessage(message, isError = false) {
+    wordMessage.textContent = message;
+    wordMessage.style.color = isError
+        ? "#b42318"
+        : "#176c40";
+}
+
+// ===== KIỂM TRA ADMIN =====
 
 async function init() {
-    const { data: { user } } = await db.auth.getUser();
+    const { data: { user }, error: authError } =
+        await db.auth.getUser();
 
-    if (!user) {
+    if (authError || !user) {
         location.href = "login.html";
         return;
     }
@@ -21,11 +39,12 @@ async function init() {
         .single();
 
     if (error || profile?.role !== "admin") {
-        document.body.textContent = "Bạn không có quyền Admin.";
+        document.body.textContent =
+            "Bạn không có quyền Admin.";
         return;
     }
 
-    document.getElementById("adminPage").hidden = false;
+    $("adminPage").hidden = false;
 
     await loadTests();
     await loadWordTests();
@@ -34,7 +53,7 @@ async function init() {
 // ===== DANH SÁCH TEST =====
 
 async function loadTests() {
-    const list = document.getElementById("testList");
+    const list = $("testList");
 
     const { data, error } = await db
         .from("tests")
@@ -48,42 +67,105 @@ async function loadTests() {
 
     list.replaceChildren();
 
-    if (!data.length) {
+    if (!data || data.length === 0) {
         list.textContent = "Chưa có Test nào.";
         return;
     }
 
-    data.forEach(test => {
+    for (const test of data) {
         const item = document.createElement("div");
         item.className = "test";
 
-        const name = document.createElement("h3");
-        name.textContent = test.title;
+        const header = document.createElement("div");
+        header.className = "test-header";
 
-        const desc = document.createElement("p");
-        desc.textContent = test.description || "Chưa có mô tả";
+        const openButton = document.createElement("button");
+        openButton.type = "button";
+        openButton.className = "test-open";
+        openButton.textContent = "📚 " + test.title + " ▼";
 
-        const edit = document.createElement("button");
-        edit.textContent = "Sửa";
-        edit.onclick = () => editTest(test);
+        const actions = document.createElement("div");
 
-        const del = document.createElement("button");
-        del.textContent = "Xóa";
-        del.className = "danger";
-        del.onclick = () => deleteTest(test);
+        const editButton = document.createElement("button");
+        editButton.type = "button";
+        editButton.textContent = "✏️ Sửa tên";
+        editButton.onclick = () => editTest(test);
 
-        item.append(name, desc, edit, del);
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "danger";
+        deleteButton.textContent = "🗑️ Xóa Test";
+        deleteButton.onclick = () => deleteTest(test);
+
+        actions.append(editButton, deleteButton);
+        header.append(openButton, actions);
+
+        const description = document.createElement("p");
+        description.textContent =
+            test.description || "Chưa có mô tả";
+
+        const wordsBox = document.createElement("div");
+        wordsBox.className = "test-words";
+        wordsBox.hidden = true;
+
+        // Bấm Test để mở hoặc đóng từ vựng
+        openButton.onclick = async () => {
+            if (!wordsBox.hidden) {
+                wordsBox.hidden = true;
+                openedTestId = null;
+                openButton.textContent =
+                    "📚 " + test.title + " ▼";
+                return;
+            }
+
+            // Chỉ mở một Test tại một thời điểm
+            document.querySelectorAll(".test-words")
+                .forEach(box => {
+                    box.hidden = true;
+                });
+
+            document.querySelectorAll(".test-open")
+                .forEach(button => {
+                    button.textContent =
+                        "📚 " +
+                        button.dataset.title +
+                        " ▼";
+                });
+
+            openedTestId = String(test.id);
+
+            wordsBox.hidden = false;
+            openButton.textContent =
+                "📚 " + test.title + " ▲";
+
+            await loadTestWords(test.id, wordsBox);
+        };
+
+        openButton.dataset.title = test.title;
+
+        item.append(header, description, wordsBox);
         list.append(item);
-    });
+
+        // Giữ Test đang mở sau khi tải lại
+        if (String(test.id) === openedTestId) {
+            wordsBox.hidden = false;
+            openButton.textContent =
+                "📚 " + test.title + " ▲";
+
+            await loadTestWords(test.id, wordsBox);
+        }
+    }
 }
 
 // ===== THÊM TEST =====
 
-document.getElementById("testForm").onsubmit = async e => {
-    e.preventDefault();
+$("testForm").onsubmit = async event => {
+    event.preventDefault();
 
-    const title = document.getElementById("title").value.trim();
-    const description = document.getElementById("description").value.trim();
+    const title = $("title").value.trim();
+    const description = $("description").value.trim();
+
+    if (!title) return;
 
     const { error } = await db.from("tests").insert({
         title,
@@ -91,28 +173,36 @@ document.getElementById("testForm").onsubmit = async e => {
         is_active: true
     });
 
-    document.getElementById("message").textContent =
-        error ? error.message : "Thêm Test thành công!";
+    $("message").textContent = error
+        ? error.message
+        : "Thêm Test thành công!";
 
     if (!error) {
-        e.target.reset();
-        loadTests();
-        loadWordTests();
+        event.target.reset();
+        await loadTests();
+        await loadWordTests();
     }
 };
 
-// ===== SỬA TEST =====
+// ===== SỬA TÊN TEST =====
 
 async function editTest(test) {
-    const title = prompt("Tên Test mới:", test.title);
+    const title = prompt(
+        "Tên Test mới:",
+        test.title
+    );
 
     if (title === null || !title.trim()) return;
 
-    const description = prompt("Mô tả:", test.description || "");
+    const description = prompt(
+        "Mô tả Test:",
+        test.description || ""
+    );
 
     if (description === null) return;
 
-    const { error } = await db.from("tests")
+    const { error } = await db
+        .from("tests")
         .update({
             title: title.trim(),
             description
@@ -121,42 +211,43 @@ async function editTest(test) {
 
     if (error) {
         alert(error.message);
-    } else {
-        loadTests();
-        loadWordTests();
+        return;
     }
+
+    await loadTests();
+    await loadWordTests();
 }
 
 // ===== XÓA TEST =====
 
 async function deleteTest(test) {
-    if (!confirm("Xóa " + test.title + " và dữ liệu liên quan?")) {
-        return;
-    }
+    const confirmed = confirm(
+        "Xóa " + test.title +
+        " và dữ liệu liên quan?\n" +
+        "Hành động này không thể hoàn tác."
+    );
 
-    const { error } = await db.from("tests")
+    if (!confirmed) return;
+
+    const { error } = await db
+        .from("tests")
         .delete()
         .eq("id", test.id);
 
     if (error) {
         alert(error.message);
-    } else {
-        loadTests();
-        loadWordTests();
+        return;
     }
+
+    if (openedTestId === String(test.id)) {
+        openedTestId = null;
+    }
+
+    await loadTests();
+    await loadWordTests();
 }
 
-// ===== QUẢN LÝ TỪ VỰNG =====
-
-const wordTest = document.getElementById("wordTest");
-const wordMessage = document.getElementById("wordMessage");
-
-function showWordMessage(text, error = false) {
-    wordMessage.textContent = text;
-    wordMessage.style.color = error ? "#b42318" : "#176c40";
-}
-
-// ===== TẢI DANH SÁCH TEST CHO TỪ VỰNG =====
+// ===== TẢI TEST CHO FORM THÊM TỪ =====
 
 async function loadWordTests() {
     const previous = wordTest.value;
@@ -167,58 +258,71 @@ async function loadWordTests() {
         .order("id");
 
     if (error) {
-        return showWordMessage(error.message, true);
+        showWordMessage(error.message, true);
+        return;
     }
 
     wordTest.replaceChildren();
 
-    for (const test of data) {
-        const option = new Option(test.title, String(test.id));
+    for (const test of data || []) {
+        const option = new Option(
+            test.title,
+            String(test.id)
+        );
         wordTest.add(option);
     }
 
-    if (data.some(t => String(t.id) === previous)) {
+    if (
+        data.some(test =>
+            String(test.id) === previous
+        )
+    ) {
         wordTest.value = previous;
     }
-
-    await loadWords();
 }
 
-// ===== TẢI TỪ VỰNG =====
+// ===== TẢI TỪ VỰNG TRONG TỪNG TEST =====
 
-async function loadWords() {
-    const list = document.getElementById("wordList");
-
-    list.replaceChildren();
-
-    if (!wordTest.value) {
-        list.textContent = "Chưa có Test.";
-        return;
-    }
+async function loadTestWords(testId, container) {
+    container.textContent = "Đang tải từ vựng...";
 
     const { data, error } = await db
         .from("vocabulary")
-        .select("id,english,vietnamese,pronunciation,word_type,example")
-        .eq("test_id", Number(wordTest.value))
+        .select(
+            "id,english,vietnamese,pronunciation,word_type,example"
+        )
+        .eq("test_id", testId)
         .order("id")
         .limit(1000);
 
+    container.replaceChildren();
+
     if (error) {
-        list.textContent = error.message;
+        container.textContent = error.message;
         return;
     }
 
-    if (!data.length) {
-        list.textContent = "Test này chưa có từ vựng.";
+    if (!data || data.length === 0) {
+        container.textContent =
+            "Test này chưa có từ vựng.";
         return;
     }
+
+    const count = document.createElement("p");
+    count.textContent =
+        "📖 Đang hiển thị " +
+        data.length +
+        " từ vựng";
+
+    container.append(count);
 
     for (const word of data) {
         const item = document.createElement("div");
         item.className = "test";
 
         const name = document.createElement("strong");
-        name.textContent = word.english + " — " + word.vietnamese;
+        name.textContent =
+            word.english + " — " + word.vietnamese;
 
         const info = document.createElement("p");
         info.textContent = [
@@ -227,44 +331,78 @@ async function loadWords() {
             word.example
         ].filter(Boolean).join(" · ");
 
-        const speak = document.createElement("button");
-        speak.textContent = "🔊 Nghe";
+        const actions = document.createElement("div");
+        actions.className = "word-actions";
 
-        speak.onclick = () => {
+        // Nghe phát âm
+        const listen = document.createElement("button");
+        listen.type = "button";
+        listen.textContent = "🔊 Nghe";
+
+        listen.onclick = () => {
+            if (!("speechSynthesis" in window)) {
+                alert("Trình duyệt không hỗ trợ phát âm.");
+                return;
+            }
+
             speechSynthesis.cancel();
 
-            const u = new SpeechSynthesisUtterance(word.english);
-            u.lang = "en-US";
+            const utterance =
+                new SpeechSynthesisUtterance(word.english);
 
-            speechSynthesis.speak(u);
+            utterance.lang = "en-US";
+            utterance.rate = 0.9;
+
+            speechSynthesis.speak(utterance);
         };
 
+        // Sửa từ vựng
         const edit = document.createElement("button");
-        edit.textContent = "Sửa";
+        edit.type = "button";
+        edit.textContent = "✏️ Sửa từ";
 
         edit.onclick = async () => {
-            const english = prompt("Tiếng Anh:", word.english);
-            if (english === null || !english.trim()) return;
+            const english = prompt(
+                "Tiếng Anh:",
+                word.english
+            );
 
-            const vietnamese = prompt("Nghĩa tiếng Việt:", word.vietnamese);
-            if (vietnamese === null || !vietnamese.trim()) return;
+            if (english === null || !english.trim()) {
+                return;
+            }
+
+            const vietnamese = prompt(
+                "Nghĩa tiếng Việt:",
+                word.vietnamese
+            );
+
+            if (vietnamese === null || !vietnamese.trim()) {
+                return;
+            }
 
             const pronunciation = prompt(
                 "Phiên âm:",
                 word.pronunciation || ""
             );
+
             if (pronunciation === null) return;
 
             const word_type = prompt(
                 "Từ loại:",
                 word.word_type || ""
             );
+
             if (word_type === null) return;
 
-            const example = prompt("Ví dụ:", word.example || "");
+            const example = prompt(
+                "Câu ví dụ:",
+                word.example || ""
+            );
+
             if (example === null) return;
 
-            const { error } = await db.from("vocabulary")
+            const { error } = await db
+                .from("vocabulary")
                 .update({
                     english: english.trim(),
                     vietnamese: vietnamese.trim(),
@@ -272,179 +410,87 @@ async function loadWords() {
                     word_type,
                     example
                 })
-                .eq("id", word.id);
+                .eq("id", word.id)
+                .eq("test_id", testId);
 
             if (error) {
-                showWordMessage(error.message, true);
-            } else {
-                showWordMessage("Đã sửa từ.");
-                loadWords();
+                alert("Sửa thất bại: " + error.message);
+                return;
             }
+
+            showWordMessage("Đã sửa từ vựng!");
+            await loadTestWords(testId, container);
         };
 
+        // Xóa từng từ
         const del = document.createElement("button");
-        del.textContent = "Xóa";
+        del.type = "button";
         del.className = "danger";
+        del.textContent = "🗑️ Xóa từ";
 
         del.onclick = async () => {
-            if (!confirm("Xóa từ " + word.english + "?")) return;
+            if (!confirm(
+                "Xóa từ \"" + word.english + "\"?"
+            )) {
+                return;
+            }
 
             const { error } = await db
                 .from("vocabulary")
                 .delete()
-                .eq("id", word.id);
+                .eq("id", word.id)
+                .eq("test_id", testId);
 
             if (error) {
-                showWordMessage(error.message, true);
-            } else {
-                showWordMessage("Đã xóa từ.");
-                loadWords();
+                alert("Xóa thất bại: " + error.message);
+                return;
             }
+
+            showWordMessage("Đã xóa từ vựng!");
+            await loadTestWords(testId, container);
         };
 
-        item.append(name, info, speak, edit, del);
-        list.append(item);
+        actions.append(listen, edit, del);
+        item.append(name, info, actions);
+        container.append(item);
     }
 
     if (data.length === 1000) {
-        showWordMessage("Đang hiển thị 1000 từ đầu tiên.");
+        const note = document.createElement("p");
+        note.textContent =
+            "Đang hiển thị 1000 từ đầu tiên.";
+        container.append(note);
     }
 }
 
-// ===== XÓA TOÀN BỘ TỪ VỰNG CỦA TEST =====
+// ===== THÊM MỘT TỪ =====
 
-document.getElementById("deleteAllWords").onclick = async () => {
-    const button = document.getElementById("deleteAllWords");
-    const selectedId = Number(wordTest.value);
-
-    const selectedTitle =
-        wordTest.selectedOptions[0]?.textContent || "Test";
-
-    if (!selectedId || button.disabled) {
-        return showWordMessage("Hãy chọn Test trước.", true);
-    }
-
-    const { count, error: countError } = await db
-        .from("vocabulary")
-        .select("id", { count: "exact", head: true })
-        .eq("test_id", selectedId);
-
-    if (countError) {
-        return showWordMessage(
-            "Không đếm được từ: " + countError.message,
-            true
-        );
-    }
-
-    if (!count) {
-        return showWordMessage(
-            selectedTitle + " chưa có từ vựng để xóa."
-        );
-    }
-
-    if (!confirm(
-        `Bạn sắp XÓA ${count} từ vựng trong ${selectedTitle}.\n` +
-        "Hành động này không thể hoàn tác. Tiếp tục?"
-    )) {
-        return;
-    }
-
-    const typed = prompt(
-        `Để xác nhận xóa ${count} từ của ${selectedTitle}, ` +
-        "nhập chính xác: XOA"
-    );
-
-    if (typed !== "XOA") {
-        return showWordMessage("Đã hủy xóa.");
-    }
-
-    button.disabled = true;
-
-    showWordMessage(
-        `Đang xóa ${count} từ của ${selectedTitle}...`
-    );
-
-    try {
-        const { error: deleteError } = await db
-            .from("vocabulary")
-            .delete()
-            .eq("test_id", selectedId);
-
-        if (deleteError) {
-            return showWordMessage(
-                "Xóa thất bại: " + deleteError.message,
-                true
-            );
-        }
-
-        const { count: remaining, error: verifyError } = await db
-            .from("vocabulary")
-            .select("id", { count: "exact", head: true })
-            .eq("test_id", selectedId);
-
-        if (verifyError) {
-            return showWordMessage(
-                "Đã gửi lệnh xóa nhưng chưa kiểm tra được: " +
-                verifyError.message,
-                true
-            );
-        }
-
-        if (remaining) {
-            return showWordMessage(
-                `Vẫn còn ${remaining} từ trong ${selectedTitle}. ` +
-                "Hãy kiểm tra quyền xóa (RLS) trong Supabase.",
-                true
-            );
-        }
-
-        showWordMessage(
-            `Đã xóa toàn bộ ${count} từ trong ${selectedTitle}.`
-        );
-
-        if (Number(wordTest.value) === selectedId) {
-            await loadWords();
-        }
-    } catch (error) {
-        showWordMessage(
-            "Có lỗi khi xóa: " + error.message,
-            true
-        );
-    } finally {
-        button.disabled = false;
-    }
-};
-
-// ===== CHỌN TEST =====
-
-wordTest.onchange = loadWords;
-
-// ===== THÊM TỪ VỰNG =====
-
-document.getElementById("wordForm").onsubmit = async e => {
-    e.preventDefault();
+$("wordForm").onsubmit = async event => {
+    event.preventDefault();
 
     if (!wordTest.value) {
-        return showWordMessage(
+        showWordMessage(
             "Hãy tạo và chọn Test trước.",
             true
         );
+        return;
     }
 
     const row = {
         test_id: Number(wordTest.value),
-        english: document.getElementById("english").value.trim(),
-        vietnamese: document.getElementById("vietnamese").value.trim(),
-        pronunciation: document.getElementById("pronunciation").value.trim(),
-        word_type: document.getElementById("wordType").value.trim(),
-        example: document.getElementById("example").value.trim()
+        english: $("english").value.trim(),
+        vietnamese: $("vietnamese").value.trim(),
+        pronunciation: $("pronunciation").value.trim(),
+        word_type: $("wordType").value.trim(),
+        example: $("example").value.trim()
     };
 
     if (!row.english || !row.vietnamese) {
-        return showWordMessage(
+        showWordMessage(
             "Cần nhập tiếng Anh và nghĩa.",
             true
         );
+        return;
     }
 
     const { error } = await db
@@ -453,35 +499,46 @@ document.getElementById("wordForm").onsubmit = async e => {
 
     if (error) {
         showWordMessage(error.message, true);
-    } else {
-        e.target.reset();
-        showWordMessage("Đã thêm từ!");
-        await loadWords();
+        return;
     }
+
+    event.target.reset();
+    showWordMessage("Đã thêm từ!");
+
+    await loadTests();
 };
 
-// ===== NHẬP TỪ VỰNG HÀNG LOẠT =====
+// ===== NHẬP NHIỀU TỪ =====
 
-document.getElementById("bulkAdd").onclick = async () => {
+$("bulkAdd").onclick = async () => {
     if (!wordTest.value) {
-        return showWordMessage("Hãy chọn Test trước.", true);
+        showWordMessage(
+            "Hãy chọn Test trước.",
+            true
+        );
+        return;
     }
 
-    const lines = document.getElementById("bulkWords")
+    const lines = $("bulkWords")
         .value
         .split(/\r?\n/)
-        .map(s => s.trim())
+        .map(line => line.trim())
         .filter(Boolean);
 
     if (!lines.length) {
-        return showWordMessage("Chưa nhập danh sách từ.", true);
+        showWordMessage(
+            "Chưa nhập danh sách từ.",
+            true
+        );
+        return;
     }
 
     if (lines.length > 200) {
-        return showWordMessage(
+        showWordMessage(
             "Mỗi lần chỉ nhập tối đa 200 từ.",
             true
         );
+        return;
     }
 
     const rows = [];
@@ -489,7 +546,7 @@ document.getElementById("bulkAdd").onclick = async () => {
     for (let i = 0; i < lines.length; i++) {
         const fields = lines[i]
             .split("|")
-            .map(s => s.trim());
+            .map(value => value.trim());
 
         if (
             fields.length < 2 ||
@@ -497,11 +554,13 @@ document.getElementById("bulkAdd").onclick = async () => {
             !fields[0] ||
             !fields[1]
         ) {
-            return showWordMessage(
+            showWordMessage(
                 "Dòng " + (i + 1) +
-                " sai định dạng. Dùng: english | nghĩa | phiên âm",
+                " sai định dạng. " +
+                "Dùng: english | nghĩa | phiên âm",
                 true
             );
+            return;
         }
 
         rows.push({
@@ -518,53 +577,127 @@ document.getElementById("bulkAdd").onclick = async () => {
 
     if (error) {
         showWordMessage(error.message, true);
-    } else {
-        document.getElementById("bulkWords").value = "";
-        showWordMessage("Đã thêm " + rows.length + " từ!");
-        await loadWords();
+        return;
+    }
+
+    $("bulkWords").value = "";
+
+    showWordMessage(
+        "Đã thêm " + rows.length + " từ!"
+    );
+
+    await loadTests();
+};
+
+// ===== XÓA TOÀN BỘ TỪ CỦA TEST =====
+
+$("deleteAllWords").onclick = async () => {
+    const button = $("deleteAllWords");
+    const selectedId = Number(wordTest.value);
+
+    const selectedTitle =
+        wordTest.selectedOptions[0]?.textContent ||
+        "Test";
+
+    if (!selectedId || button.disabled) {
+        showWordMessage(
+            "Hãy chọn Test trước.",
+            true
+        );
+        return;
+    }
+
+    const { count, error: countError } = await db
+        .from("vocabulary")
+        .select("id", {
+            count: "exact",
+            head: true
+        })
+        .eq("test_id", selectedId);
+
+    if (countError) {
+        showWordMessage(countError.message, true);
+        return;
+    }
+
+    if (!count) {
+        showWordMessage(
+            selectedTitle + " chưa có từ vựng."
+        );
+        return;
+    }
+
+    const confirmed = confirm(
+        `Bạn sắp XÓA ${count} từ trong ${selectedTitle}.\n` +
+        "Không thể hoàn tác. Tiếp tục?"
+    );
+
+    if (!confirmed) return;
+
+    const typed = prompt(
+        "Nhập chính xác XOA để xác nhận:"
+    );
+
+    if (typed !== "XOA") {
+        showWordMessage("Đã hủy xóa.");
+        return;
+    }
+
+    button.disabled = true;
+
+    try {
+        const { error } = await db
+            .from("vocabulary")
+            .delete()
+            .eq("test_id", selectedId);
+
+        if (error) {
+            showWordMessage(error.message, true);
+            return;
+        }
+
+        const {
+            count: remaining,
+            error: verifyError
+        } = await db
+            .from("vocabulary")
+            .select("id", {
+                count: "exact",
+                head: true
+            })
+            .eq("test_id", selectedId);
+
+        if (verifyError) {
+            showWordMessage(
+                "Không kiểm tra được kết quả xóa: " +
+                verifyError.message,
+                true
+            );
+            return;
+        }
+
+        if (remaining > 0) {
+            showWordMessage(
+                `Vẫn còn ${remaining} từ. ` +
+                "Hãy kiểm tra quyền RLS.",
+                true
+            );
+            return;
+        }
+
+        showWordMessage(
+            `Đã xóa toàn bộ ${count} từ trong ${selectedTitle}.`
+        );
+
+        await loadTests();
+    } catch (error) {
+        showWordMessage(error.message, true);
+    } finally {
+        button.disabled = false;
     }
 };
 
-// ===== THU GỌN DANH SÁCH TEST VÀ TỪ VỰNG =====
+// ===== KHỞI ĐỘNG =====
 
-function setupAdminToggles() {
-    function setupToggle(buttonId, listId, label) {
-        const button = document.getElementById(buttonId);
-        const list = document.getElementById(listId);
-
-        if (!button || !list) return;
-
-        // Mặc định ẩn
-        list.style.display = "none";
-        button.textContent = "👁 Hiện " + label;
-
-        button.addEventListener("click", () => {
-            const isHidden =
-                window.getComputedStyle(list).display === "none";
-
-            list.style.display = isHidden ? "block" : "none";
-
-            button.textContent = isHidden
-                ? "🙈 Ẩn " + label
-                : "👁 Hiện " + label;
-        });
-    }
-
-    setupToggle(
-        "toggleTestList",
-        "testList",
-        "danh sách Test"
-    );
-
-    setupToggle(
-        "toggleWordList",
-        "wordList",
-        "danh sách từ vựng"
-    );
-}
-
-// ===== KHỞI CHẠY =====
-
-// admin.js được tải bằng defer nên HTML đã được phân tích xong.
-setupAdminToggles();
+// File được tải bằng defer
 init();
