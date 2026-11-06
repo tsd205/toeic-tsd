@@ -28,7 +28,7 @@
       margin: 18px 0;
     }
 
-    input, textarea {
+    input, textarea, select {
       width: 100%;
       box-sizing: border-box;
       padding: 12px;
@@ -47,17 +47,65 @@
       margin: 4px;
     }
 
-    .danger {
-      background: #dc3545;
-    }
+    .danger { background: #dc3545; }
 
     .test {
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid #e4e9f4;
       padding: 15px 0;
     }
 
-    #message {
-      color: #176c40;
+    #message { color: #176c40; }
+
+    .test-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .test-open {
+      background: transparent;
+      color: inherit;
+      font-weight: bold;
+      font-size: 17px;
+      text-align: left;
+      flex: 1;
+    }
+
+    .test-words {
+      margin-top: 12px;
+      padding: 14px;
+      border: 1px solid #ccd6e8;
+      border-radius: 10px;
+    }
+
+    .test-words[hidden] {
+      display: none !important;
+    }
+
+    .word-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 8px;
+    }
+
+    .word-actions button {
+      padding: 8px 12px;
+    }
+
+    .admin-details {
+      margin-top: 18px;
+      border: 1px solid #ccd6e8;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .admin-details summary {
+      cursor: pointer;
+      font-weight: bold;
+      padding: 8px;
     }
   </style>
 
@@ -95,32 +143,26 @@
         <button type="submit">Thêm Test</button>
       </form>
 
-      <p id="message"></p>
+      <p id="message" role="status"></p>
     </section>
 
     <!-- DANH SÁCH TEST -->
     <section class="panel">
-      <h2>Danh sách Test</h2>
+      <h2>📚 Danh sách Test</h2>
+      <p>
+        Bấm vào tên Test để xem từ vựng.
+        Có thể nghe, sửa hoặc xóa từng từ.
+      </p>
 
-      <button id="toggleTestList" type="button">
-        👁 Hiện danh sách Test
-      </button>
-
-      <div id="testList" style="display:none;">
-        Đang tải...
-      </div>
+      <div id="testList">Đang tải...</div>
     </section>
 
-    <!-- QUẢN LÝ TỪ VỰNG -->
+    <!-- THÊM VÀ QUẢN LÝ TỪ VỰNG -->
     <section class="panel">
       <h2>Quản lý từ vựng</h2>
 
       <label for="wordTest">Chọn Test:</label>
-
-      <select
-        id="wordTest"
-        style="width:100%;padding:12px;margin:10px 0">
-      </select>
+      <select id="wordTest"></select>
 
       <h3>Thêm từng từ</h3>
 
@@ -144,7 +186,7 @@
 
         <input
           id="wordType"
-          placeholder="Từ loại: n, v, adj... (không bắt buộc)"
+          placeholder="Từ loại: n, v, adj..."
         >
 
         <input
@@ -159,9 +201,7 @@
 
       <p>
         Mỗi dòng:
-        <code>english | nghĩa tiếng Việt | phiên âm</code>.
-        Ví dụ:
-        <code>employee | nhân viên | /ɪmˈplɔɪ.iː/</code>
+        <code>english | nghĩa tiếng Việt | phiên âm</code>
       </p>
 
       <textarea
@@ -176,20 +216,14 @@
 
       <p id="wordMessage" role="status"></p>
 
-      <!-- XÓA TỪ VỰNG -->
-      <div style="
-        margin-top:18px;
-        padding:15px;
-        border:1px solid #f3b8bd;
-        border-radius:10px;
-        background:#fff8f8;
-      ">
-        <h3 style="margin-top:0">
-          Xóa từ vựng của Test đang chọn
-        </h3>
+      <!-- XÓA TOÀN BỘ TỪ -->
+      <details class="admin-details">
+        <summary>
+          🗑️ Xóa toàn bộ từ vựng của Test
+        </summary>
 
         <p>
-          Chỉ xóa từ vựng của Test được chọn ở trên,
+          Chỉ xóa từ vựng của Test đang chọn,
           không xóa Test.
         </p>
 
@@ -197,20 +231,9 @@
           id="deleteAllWords"
           class="danger"
           type="button">
-          🗑️ Xóa toàn bộ từ vựng của Test này
+          Xóa toàn bộ từ vựng của Test này
         </button>
-      </div>
-
-      <!-- DANH SÁCH TỪ VỰNG THU GỌN -->
-      <h3>📚 Danh sách từ vựng</h3>
-
-      <button id="toggleWordList" type="button">
-        👁 Hiện danh sách từ vựng
-      </button>
-
-      <div id="wordList" style="display:none;">
-        Chọn Test để xem từ vựng.
-      </div>
+      </details>
     </section>
 
     <!-- KẾT QUẢ HỌC VIÊN -->
@@ -272,7 +295,6 @@
               <th>Chi tiết</th>
             </tr>
           </thead>
-
           <tbody id="resultsRows"></tbody>
         </table>
       </div>
@@ -281,15 +303,12 @@
         <button type="button" id="resultsPrev">
           ← Trước
         </button>
-
         <span id="resultsPage">Trang 1</span>
-
         <button type="button" id="resultsNext">
           Sau →
         </button>
       </div>
 
-      <!-- CHI TIẾT BÀI LÀM -->
       <div
         id="resultDetails"
         hidden
@@ -319,23 +338,18 @@
                 <th>Đánh giá</th>
               </tr>
             </thead>
-
             <tbody id="resultDetailRows"></tbody>
           </table>
         </div>
 
-        <p
-          id="resultDetailStatus"
-          role="status">
-        </p>
+        <p id="resultDetailStatus" role="status"></p>
       </div>
     </section>
   </main>
 
-  <!-- JAVASCRIPT -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
-  <script src="js/admin.js" defer></script>
+  <script src="js/admin.js?v=6" defer></script>
   <script src="js/admin-results.js" defer></script>
 </body>
 </html>
