@@ -52,11 +52,11 @@
   }
 
   let volume = Number(
-    read("tsd_music_volume", "0.20")
+    read("tsd_music_volume", "0.10")
   );
 
   if (!Number.isFinite(volume)) {
-    volume = 0.20;
+    volume = 0.10;
   }
 
   volume = Math.max(0, Math.min(1, volume));
@@ -381,7 +381,7 @@
           type="range"
           min="0"
           max="100"
-          value="20"
+          value="10"
         >
 
         <label class="tsd-music-check">
