@@ -1,172 +1,196 @@
+
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
-    <title>Cá nhân - TOEIC TSD</title>
+  <title>Cá nhân - TOEIC TSD</title>
 
-    <!-- CSS giao diện -->
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/learning.css">
-    <link rel="stylesheet" href="css/theme.css">
+  <!-- CSS giao diện -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/learning.css">
+  <link rel="stylesheet" href="css/theme.css">
 
-    <!-- Chế độ sáng/tối -->
-    <script src="js/theme.js"></script>
+  <!-- Midnight Study Music -->
+  <link rel="stylesheet" href="css/lofi.css?v=3">
+
+  <!-- Hiệu ứng tuyết rơi -->
+  <link rel="stylesheet" href="css/snow.css?v=1">
+
+  <!-- Chế độ sáng / tối -->
+  <script src="js/theme.js"></script>
 </head>
 
 <body>
-    <main class="learning">
 
-        <!-- THANH ĐIỀU HƯỚNG -->
-        <header>
-            <strong>TOEIC VOCABULARY TSD</strong>
+  <main class="learning">
 
-            <nav class="nav-actions">
-                <a href="dashboard.html">
-                    ← Dashboard
-                </a>
+    <!-- THANH ĐIỀU HƯỚNG -->
+    <header>
+      <strong>TOEIC VOCABULARY TSD</strong>
 
-                <button
-                    class="theme-toggle"
-                    onclick="toggleTheme()">
-                    🌙 Chế độ tối
-                </button>
+      <nav class="nav-actions">
 
-                <button onclick="logoutUser()">
-                    Đăng xuất
-                </button>
-            </nav>
-        </header>
+        <a href="dashboard.html">
+          ← Dashboard
+        </a>
 
-        <!-- TRANG CÁ NHÂN -->
-        <section class="panel">
+        <button
+          class="theme-toggle"
+          type="button"
+          onclick="toggleTheme()"
+        >
+          🌙 Chế độ tối
+        </button>
 
-            <h1>👤 Trang cá nhân</h1>
+        <button
+          type="button"
+          onclick="logoutUser()"
+        >
+          Đăng xuất
+        </button>
 
-            <!-- Thông tin tài khoản -->
-            <p id="profileName">Đang tải...</p>
-            <p id="profileEmail"></p>
-            <p id="profileRole"></p>
+      </nav>
+    </header>
 
-            <!-- KẾT QUẢ HỌC TẬP -->
-            <h2>📊 Kết quả học tập</h2>
+    <!-- TRANG CÁ NHÂN -->
+    <section class="panel">
 
-            <div class="profile-grid">
+      <h1>👤 Trang cá nhân</h1>
 
-                <div class="stat">
-                    <b id="attemptCount">—</b>
-                    <p>Lượt luyện tập</p>
-                </div>
+      <!-- Thông tin tài khoản -->
+      <p id="profileName">Đang tải...</p>
+      <p id="profileEmail"></p>
+      <p id="profileRole"></p>
 
-                <div class="stat">
-                    <b id="bestScore">—</b>
-                    <p>Điểm cao nhất</p>
-                </div>
+      <!-- KẾT QUẢ HỌC TẬP -->
+      <h2>📊 Kết quả học tập</h2>
 
-            </div>
+      <div class="profile-grid">
 
-            <!-- LỊCH SỬ LUYỆN TẬP -->
-            <h3>Lịch sử gần đây</h3>
+        <div class="stat">
+          <b id="attemptCount">—</b>
+          <p>Lượt luyện tập</p>
+        </div>
 
-            <div id="history">
-                Đang tải...
-            </div>
+        <div class="stat">
+          <b id="bestScore">—</b>
+          <p>Điểm cao nhất</p>
+        </div>
 
-            <!-- ĐỔI MẬT KHẨU -->
-            <h3>🔐 Đổi mật khẩu</h3>
+      </div>
 
-            <form id="changePassword">
+      <!-- LỊCH SỬ LUYỆN TẬP -->
+      <h3>Lịch sử gần đây</h3>
 
-                <label for="newPassword">
-                    Mật khẩu mới
-                </label>
+      <div id="history">
+        Đang tải...
+      </div>
 
-                <div class="password-field">
+      <!-- ĐỔI MẬT KHẨU -->
+      <h3>🔐 Đổi mật khẩu</h3>
 
-                    <input
-                        id="newPassword"
-                        type="password"
-                        minlength="8"
-                        required
-                        placeholder="Ít nhất 8 ký tự"
-                    >
+      <form id="changePassword">
 
-                    <button
-                        class="eye-toggle"
-                        type="button"
-                        onclick="togglePassword('newPassword', this)">
-                        👁
-                    </button>
+        <label for="newPassword">
+          Mật khẩu mới
+        </label>
 
-                </div>
+        <div class="password-field">
 
-                <button type="submit">
-                    Cập nhật mật khẩu
-                </button>
+          <input
+            id="newPassword"
+            type="password"
+            minlength="8"
+            required
+            placeholder="Ít nhất 8 ký tự"
+          >
 
-            </form>
+          <button
+            class="eye-toggle"
+            type="button"
+            onclick="togglePassword('newPassword', this)"
+            aria-label="Hiện mật khẩu"
+          >
+            👁
+          </button>
 
-            <p id="passwordStatus" role="status"></p>
+        </div>
 
-            <!-- LỜI CHÚC, QR VÀ BẢN QUYỀN -->
-            <div class="profile-footer">
+        <button type="submit">
+          Cập nhật mật khẩu
+        </button>
 
-                <h3>💙 Lời chúc</h3>
+      </form>
 
-                <p>
-                    Chúc mọi người luyện tập vui vẻ
-                    và hiệu quả! 💙
-                </p>
+      <p id="passwordStatus" role="status"></p>
 
-                <p>Cố gắng k mất pi nhé ((:</p>
+      <!-- LỜI CHÚC, QR VÀ BẢN QUYỀN -->
+      <div class="profile-footer">
 
-                <!-- ỦNG HỘ DỰ ÁN -->
-                <h3>
-                    ☕ Ủng hộ dự án,
-                    nhà sáng tạo nhỏ ((:
-                </h3>
+        <h3>💙 Lời chúc</h3>
 
-                <p>
-                    Nếu thấy website hữu ích,
-                    bạn có thể ủng hộ hoàn toàn tự nguyện.
-                </p>
+        <p>
+          Chúc mọi người luyện tập vui vẻ
+          và hiệu quả! 💙
+        </p>
 
-                <!-- CHÈN ẢNH QR TẠI ĐÂY -->
-                <div class="qr-placeholder">
+        <p>Cố gắng k mất pi nhé ((:</p>
 
-                    <img
-                        src="./qr-ung-ho.jpg"
-                        alt="QR ủng hộ TOEIC TSD"
-                        style="
-                            width: 220px;
-                            max-width: 100%;
-                            border-radius: 12px;
-                        "
-                    >
+        <!-- ỦNG HỘ DỰ ÁN -->
+        <h3>
+          ☕ Ủng hộ dự án,
+          nhà sáng tạo nhỏ ((:
+        </h3>
 
-                </div>
+        <p>
+          Nếu thấy website hữu ích,
+          bạn có thể ủng hộ hoàn toàn tự nguyện.
+        </p>
 
-                <!-- BẢN QUYỀN -->
-                <p>
-                    © 2026 TOEIC TSD ·
-                    Developed by TSD ·
-                    All rights reserved.
-                </p>
+        <!-- ẢNH QR -->
+        <div class="qr-placeholder">
 
-            </div>
+          <img
+            src="./qr-ung-ho.jpg"
+            alt="QR ủng hộ TOEIC TSD"
+            style="
+              width: 220px;
+              max-width: 100%;
+              border-radius: 12px;
+            "
+          >
 
-        </section>
-    </main>
+        </div>
 
-    <!-- THƯ VIỆN SUPABASE -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        <!-- BẢN QUYỀN -->
+        <p>
+          © 2026 TOEIC TSD ·
+          Developed by TSD ·
+          All rights reserved.
+        </p>
 
-    <!-- JAVASCRIPT -->
-    <script src="js/config.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/profile.js"></script>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- THƯ VIỆN SUPABASE -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- JAVASCRIPT GỐC -->
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/profile.js"></script>
+
+  <!-- Midnight Study Music -->
+  <script src="js/lofi.js?v=3" defer></script>
+
+  <!-- Hiệu ứng tuyết rơi -->
+  <script src="js/snow.js?v=1" defer></script>
 
 </body>
 </html>
