@@ -121,3 +121,119 @@ button:not(:disabled):active {
     animation: none;
   }
 }
+
+/* Midnight Chillhop Music Player */
+
+#tsdMusicPlayer {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 9999;
+  font-family: system-ui, sans-serif;
+  color: #edf0ed;
+}
+
+#tsdMusicPlayer * {
+  box-sizing: border-box;
+}
+
+#tsdMusicPanel {
+  position: absolute;
+  right: 0;
+  bottom: 66px;
+  width: min(290px, calc(100vw - 28px));
+  padding: 18px;
+  background: #1b1f23;
+  border: 1px solid #3a4345;
+  border-radius: 18px;
+  box-shadow: 0 20px 55px rgba(0,0,0,.4);
+}
+
+#tsdMusicPanel[hidden] {
+  display: none !important;
+}
+
+.tsd-music-title {
+  font-size: 16px;
+  font-weight: 650;
+  margin-bottom: 5px;
+}
+
+.tsd-music-subtitle {
+  font-size: 12px;
+  color: #a3aca8;
+  margin-bottom: 16px;
+}
+
+.tsd-music-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+#tsdMusicPlay {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid #667c73;
+  background: #a8beb5;
+  color: #101216;
+  font-size: 19px;
+  cursor: pointer;
+}
+
+.tsd-music-controls strong {
+  display: block;
+  font-size: 13px;
+}
+
+.tsd-music-controls small {
+  display: block;
+  margin-top: 4px;
+  color: #a3aca8;
+  font-size: 12px;
+}
+
+#tsdMusicPanel > label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #a3aca8;
+}
+
+#tsdMusicVolume {
+  width: 100%;
+  accent-color: #a8beb5;
+}
+
+#tsdMusicPanel .tsd-music-check {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 16px;
+  color: #c7cfcb;
+}
+
+#tsdMusicFab {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  margin-left: auto;
+  border-radius: 50%;
+  background: #242a2e;
+  border: 1px solid #53625d;
+  color: #dce8e1;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 8px 28px rgba(0,0,0,.35);
+}
+
+@media (max-width: 600px) {
+  #tsdMusicPlayer {
+    right: 12px;
+    bottom: 12px;
+  }
+}
+
