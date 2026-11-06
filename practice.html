@@ -1,4 +1,114 @@
-<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TOEIC TSD - Luyện tập</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="css/learning.css"><link rel="stylesheet" href="css/theme.css"><script src="js/theme.js"></script></head><body>
-<main class="learning"><header><strong>TOEIC VOCABULARY TSD</strong><nav class="nav-actions"><a href="dashboard.html">← Chọn Test</a><a href="profile.html">Cá nhân</a><button class="theme-toggle" type="button" onclick="toggleTheme()">🌙 Chế độ tối</button></nav></header>
-<section class="panel"><h1>Luyện từ vựng</h1><p id="progress">Đang tải...</p><div id="exercise" hidden><p id="testName"></p><button id="speak" type="button">🔊 Nghe phát âm</button><p>Nghe và nhập từ tiếng Anh, sau đó nhập nghĩa tiếng Việt.</p><form id="answerForm"><label>Tiếng Anh<input id="answerEnglish" autocomplete="off" required></label><label>Nghĩa tiếng Việt<input id="answerVietnamese" autocomplete="off" required></label><button id="check" type="submit">Kiểm tra</button></form><div id="feedback" role="status"></div><button id="next" type="button" hidden>Từ tiếp theo →</button></div><div id="results" hidden></div></section></main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/config.js"></script><script src="js/auth.js"></script><script src="js/practice.js"></script></body></html>
+
+<!doctype html>
+<html lang="vi">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>TOEIC TSD - Luyện tập</title>
+
+  <!-- CSS gốc -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/learning.css">
+  <link rel="stylesheet" href="css/theme.css">
+
+  <!-- Nhạc Midnight Study + Tuyết rơi -->
+  <link rel="stylesheet" href="css/lofi.css?v=3">
+  <link rel="stylesheet" href="css/snow.css?v=1">
+
+  <script src="js/theme.js"></script>
+</head>
+
+<body>
+
+  <main class="learning">
+
+    <header>
+      <strong>TOEIC VOCABULARY TSD</strong>
+
+      <nav class="nav-actions">
+        <a href="dashboard.html">← Chọn Test</a>
+        <a href="profile.html">Cá nhân</a>
+
+        <button
+          class="theme-toggle"
+          type="button"
+          onclick="toggleTheme()"
+        >
+          🌙 Chế độ tối
+        </button>
+      </nav>
+    </header>
+
+    <section class="panel">
+
+      <h1>Luyện từ vựng</h1>
+      <p id="progress">Đang tải...</p>
+
+      <div id="exercise" hidden>
+
+        <p id="testName"></p>
+
+        <button id="speak" type="button">
+          🔊 Nghe phát âm
+        </button>
+
+        <p>
+          Nghe và nhập từ tiếng Anh,
+          sau đó nhập nghĩa tiếng Việt.
+        </p>
+
+        <form id="answerForm">
+
+          <label>
+            Tiếng Anh
+            <input
+              id="answerEnglish"
+              autocomplete="off"
+              required
+            >
+          </label>
+
+          <label>
+            Nghĩa tiếng Việt
+            <input
+              id="answerVietnamese"
+              autocomplete="off"
+              required
+            >
+          </label>
+
+          <button id="check" type="submit">
+            Kiểm tra
+          </button>
+
+        </form>
+
+        <div id="feedback" role="status"></div>
+
+        <button id="next" type="button" hidden>
+          Từ tiếp theo →
+        </button>
+
+      </div>
+
+      <div id="results" hidden></div>
+
+    </section>
+  </main>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+
+  <!-- Chức năng luyện tập -->
+  <script src="js/practice.js"></script>
+
+  <!-- Nhạc Midnight Study + Tuyết rơi -->
+  <script src="js/lofi.js?v=3" defer></script>
+  <script src="js/snow.js?v=1" defer></script>
+
+</body>
+</html>
