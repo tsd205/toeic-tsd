@@ -282,6 +282,39 @@
 
         <button type="submit">Thêm từ</button>
       </form>
+      
+<h3>📥 Nhập từ vựng từ Excel</h3>
+
+<p>
+  Chọn Test ở phía trên, sau đó tải file Excel.
+  Hỗ trợ .xlsx và .xls.
+</p>
+
+<input
+  type="file"
+  id="excelFile"
+  accept=".xlsx,.xls"
+/>
+
+<button id="previewExcel" type="button">
+  📄 Đọc file Excel
+</button>
+
+<p id="excelStatus" role="status"></p>
+
+<div id="excelPreview" hidden>
+  <h4>Xem trước dữ liệu</h4>
+  <p id="excelCount"></p>
+
+  <div
+    id="excelPreviewTable"
+    style="max-height:320px;overflow:auto;">
+  </div>
+
+  <button id="importExcel" type="button">
+    ✅ Nhập từ vào Test
+  </button>
+</div>
 
       <h3>Nhập nhiều từ cùng lúc</h3>
 
