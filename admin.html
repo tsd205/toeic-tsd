@@ -216,32 +216,31 @@
     </section>
 
     
+
+
 <!-- DANH SÁCH TEST THU GỌN 2 CẤP -->
 <section class="panel">
-
-  <details class="admin-details" id="testDetails">
-
-    <summary style="
-      cursor:pointer;
-      padding:12px;
+  <button
+    id="toggleAllTests"
+    type="button"
+    aria-expanded="false"
+    aria-controls="testList"
+    style="
+      width:100%;
+      padding:16px;
+      text-align:left;
       font-size:18px;
       font-weight:bold;
+      border-radius:12px;
     ">
-      📚 Danh sách Test
-    </summary>
+    📚 Danh sách Test ▼
+  </button>
 
-    <p>
-      Bấm vào từng Test để xem, nghe,
-      sửa hoặc xóa từ vựng.
-    </p>
-
-    <div id="testList">
-      Đang tải...
-    </div>
-
-  </details>
-
+  <div id="testList" hidden>
+    Đang tải...
+  </div>
 </section>
+
 
 
     <!-- QUẢN LÝ TỪ VỰNG -->
