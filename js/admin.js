@@ -243,3 +243,35 @@ const db = window.supabase.createClient(
       else { document.getElementById("bulkWords").value=""; showWordMessage("Đã thêm " + rows.length + " từ!"); await loadWords(); }
     };
     init();
+
+function setupWordListToggle() {
+    const button = document.getElementById("toggleWordList");
+    const wordList = document.getElementById("wordList");
+
+    if (!button || !wordList) return;
+
+    // Mặc định ẩn danh sách
+    wordList.style.display = "none";
+
+    button.addEventListener("click", function () {
+        const isHidden =
+            window.getComputedStyle(wordList).display === "none";
+
+        wordList.style.display = isHidden ? "block" : "none";
+
+        button.textContent = isHidden
+            ? "🙈 Ẩn danh sách từ vựng"
+            : "👁 Hiện danh sách từ vựng";
+    });
+}
+
+// Khởi tạo khi HTML đã tải xong
+if (document.readyState === "loading") {
+    document.addEventListener(
+        "DOMContentLoaded",
+        setupWordListToggle
+    );
+} else {
+    setupWordListToggle();
+}
+
