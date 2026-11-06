@@ -1,0 +1,37 @@
+
+/* TOEIC TSD - Gentle Snow */
+
+#tsd-snow {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.tsd-snowflake {
+  position: absolute;
+  top: -15px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.25;
+  animation: tsd-snow-fall linear infinite;
+  will-change: transform;
+}
+
+@keyframes tsd-snow-fall {
+  from {
+    transform: translate3d(0, -20px, 0);
+  }
+
+  to {
+    transform: translate3d(25px, 110vh, 0);
+  }
+}
+
+/* Không gây khó chịu cho người nhạy cảm chuyển động */
+@media (prefers-reduced-motion: reduce) {
+  #tsd-snow {
+    display: none;
+  }
+}
