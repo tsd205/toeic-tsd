@@ -710,4 +710,40 @@ $("deleteAllWords").onclick = async () => {
 // KHỞI ĐỘNG
 // ==============================
 
+// THU GỌN TOÀN BỘ DANH SÁCH TEST
+function setupAllTestsToggle() {
+  const button = document.getElementById("toggleAllTests");
+  const list = document.getElementById("testList");
+
+  if (!button || !list) return;
+
+  // Mặc định ẩn khi mở trang
+  list.hidden = true;
+  list.style.setProperty("display", "none", "important");
+
+  button.addEventListener("click", () => {
+    const isClosed = list.hidden;
+
+    list.hidden = !isClosed;
+
+    list.style.setProperty(
+      "display",
+      isClosed ? "block" : "none",
+      "important"
+    );
+
+    button.textContent = isClosed
+      ? "📚 Danh sách Test ▲"
+      : "📚 Danh sách Test ▼";
+
+    button.setAttribute(
+      "aria-expanded",
+      String(isClosed)
+    );
+  });
+}
+
+setupAllTestsToggle();
+init();
+
 init();
