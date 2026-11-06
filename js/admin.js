@@ -275,3 +275,52 @@ if (document.readyState === "loading") {
     setupWordListToggle();
 }
 
+/* ===== THU GỌN DANH SÁCH ADMIN ===== */
+
+function setupAdminToggles() {
+
+    function setupToggle(buttonId, listId, label) {
+        const button = document.getElementById(buttonId);
+        const list = document.getElementById(listId);
+
+        if (!button || !list) return;
+
+        // Mặc định ẩn danh sách
+        list.style.display = "none";
+        button.textContent = "👁 Hiện " + label;
+
+        button.addEventListener("click", () => {
+            const isHidden =
+                getComputedStyle(list).display === "none";
+
+            list.style.display = isHidden ? "block" : "none";
+
+            button.textContent = isHidden
+                ? "🙈 Ẩn " + label
+                : "👁 Hiện " + label;
+        });
+    }
+
+    setupToggle(
+        "toggleTestList",
+        "testList",
+        "danh sách Test"
+    );
+
+    setupToggle(
+        "toggleWordList",
+        "wordList",
+        "danh sách từ vựng"
+    );
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener(
+        "DOMContentLoaded",
+        setupAdminToggles
+    );
+} else {
+    setupAdminToggles();
+}
+
+
