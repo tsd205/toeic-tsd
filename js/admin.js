@@ -746,4 +746,5 @@ function setupAllTestsToggle() {
 setupAllTestsToggle();
 init();
 
-init();
+
+
