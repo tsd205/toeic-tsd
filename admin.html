@@ -6,9 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Quản trị TOEIC TSD</title>
 
+  <!-- CSS gốc -->
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/admin.css">
   <link rel="stylesheet" href="css/theme.css">
+
+  <!-- Midnight Study + Tuyết rơi -->
+  <link rel="stylesheet" href="css/lofi.css?v=3">
+  <link rel="stylesheet" href="css/snow.css?v=1">
 
   <style>
     .admin {
@@ -178,6 +183,7 @@
     }
   </style>
 
+  <!-- Chế độ sáng / tối -->
   <script src="js/theme.js"></script>
 </head>
 
@@ -215,33 +221,28 @@
       <p id="message" role="status"></p>
     </section>
 
-    
+    <!-- DANH SÁCH TEST THU GỌN 2 CẤP -->
+    <section class="panel">
+      <button
+        id="toggleAllTests"
+        type="button"
+        aria-expanded="false"
+        aria-controls="testList"
+        style="
+          width:100%;
+          padding:16px;
+          text-align:left;
+          font-size:18px;
+          font-weight:bold;
+          border-radius:12px;
+        ">
+        📚 Danh sách Test ▼
+      </button>
 
-
-<!-- DANH SÁCH TEST THU GỌN 2 CẤP -->
-<section class="panel">
-  <button
-    id="toggleAllTests"
-    type="button"
-    aria-expanded="false"
-    aria-controls="testList"
-    style="
-      width:100%;
-      padding:16px;
-      text-align:left;
-      font-size:18px;
-      font-weight:bold;
-      border-radius:12px;
-    ">
-    📚 Danh sách Test ▼
-  </button>
-
-  <div id="testList" hidden>
-    Đang tải...
-  </div>
-</section>
-
-
+      <div id="testList" hidden>
+        Đang tải...
+      </div>
+    </section>
 
     <!-- QUẢN LÝ TỪ VỰNG -->
     <section class="panel">
@@ -282,40 +283,42 @@
 
         <button type="submit">Thêm từ</button>
       </form>
-      
-<h3>📥 Nhập từ vựng từ Excel</h3>
 
-<p>
-  Chọn Test ở phía trên, sau đó tải file Excel.
-  Hỗ trợ .xlsx và .xls.
-</p>
+      <!-- NHẬP EXCEL -->
+      <h3>📥 Nhập từ vựng từ Excel</h3>
 
-<input
-  type="file"
-  id="excelFile"
-  accept=".xlsx,.xls"
-/>
+      <p>
+        Chọn Test ở phía trên, sau đó tải file Excel.
+        Hỗ trợ .xlsx và .xls.
+      </p>
 
-<button id="previewExcel" type="button">
-  📄 Đọc file Excel
-</button>
+      <input
+        type="file"
+        id="excelFile"
+        accept=".xlsx,.xls"
+      >
 
-<p id="excelStatus" role="status"></p>
+      <button id="previewExcel" type="button">
+        📄 Đọc file Excel
+      </button>
 
-<div id="excelPreview" hidden>
-  <h4>Xem trước dữ liệu</h4>
-  <p id="excelCount"></p>
+      <p id="excelStatus" role="status"></p>
 
-  <div
-    id="excelPreviewTable"
-    style="max-height:320px;overflow:auto;">
-  </div>
+      <div id="excelPreview" hidden>
+        <h4>Xem trước dữ liệu</h4>
+        <p id="excelCount"></p>
 
-  <button id="importExcel" type="button">
-    ✅ Nhập từ vào Test
-  </button>
-</div>
+        <div
+          id="excelPreviewTable"
+          style="max-height:320px;overflow:auto;">
+        </div>
 
+        <button id="importExcel" type="button">
+          ✅ Nhập từ vào Test
+        </button>
+      </div>
+
+      <!-- NHẬP HÀNG LOẠT -->
       <h3>Nhập nhiều từ cùng lúc</h3>
 
       <p>
@@ -476,12 +479,23 @@
     </section>
   </main>
 
+  <!-- SUPABASE -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
+
+  <!-- QUẢN TRỊ -->
   <script src="js/admin.js?v=7" defer></script>
   <script src="js/admin-results.js" defer></script>
+
+  <!-- EXCEL -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="js/admin-excel.js?v=4" defer></script>
+
+  <!-- MIDNIGHT STUDY MUSIC -->
+  <script src="js/lofi.js?v=3" defer></script>
+
+  <!-- TUYẾT RƠI -->
+  <script src="js/snow.js?v=1" defer></script>
 
 </body>
 </html>
