@@ -58,71 +58,22 @@
     ].includes(text);
   }
 
-  function parseExcel(rows) {
-    const result = [];
+  
+function parseExcel(rows) {
+  const leftWords = [];
+  const rightWords = [];
 
-    for (const row of rows) {
-      if (!Array.isArray(row)) continue;
+  for (const row of rows) {
+    if (!Array.isArray(row)) continue;
 
-      // File WHEN: mỗi nhóm gồm 4 cột
-      // STT | Từ | Phiên âm | Nghĩa
-      const hasTwoGroups = row.length >= 8;
+    // BÊN TRÁI: STT | Tiếng Anh | Phiên âm | Nghĩa
+    if (isNumber(row[0])) {
+      const english = cell(row[1]);
+      const pronunciation = cell(row[2]);
+      const vietnamese = cell(row[3]);
 
-      if (hasTwoGroups) {
-        for (const start of [0, 4]) {
-          const stt = cell(row[start]);
-          const english = cell(row[start + 1]);
-          const pronunciation = cell(row[start + 2]);
-          const vietnamese = cell(row[start + 3]);
-
-          if (
-            !isNumber(stt) ||
-            !english ||
-            !vietnamese
-          ) continue;
-
-          result.push({
-            english,
-            pronunciation,
-            vietnamese
-          });
-        }
-
-        continue;
-      }
-
-      // Một nhóm 4 cột
-      if (row.length >= 4 && isNumber(row[0])) {
-        const english = cell(row[1]);
-        const pronunciation = cell(row[2]);
-        const vietnamese = cell(row[3]);
-
-        if (english && vietnamese) {
-          result.push({
-            english,
-            pronunciation,
-            vietnamese
-          });
-        }
-
-        continue;
-      }
-
-      // Excel 3 cột:
-      // Tiếng Anh | Phiên âm | Nghĩa
-      if (row.length >= 3) {
-        const english = cell(row[0]);
-        const pronunciation = cell(row[1]);
-        const vietnamese = cell(row[2]);
-
-        if (
-          !english ||
-          !vietnamese ||
-          isHeader(english) ||
-          isNumber(english)
-        ) continue;
-
-        result.push({
+      if (english && vietnamese) {
+        leftWords.push({
           english,
           pronunciation,
           vietnamese
@@ -130,8 +81,45 @@
       }
     }
 
-    return result;
+    // BÊN PHẢI: STT | Tiếng Anh | Phiên âm | Nghĩa
+    if (row.length >= 8 && isNumber(row[4])) {
+      const english = cell(row[5]);
+      const pronunciation = cell(row[6]);
+      const vietnamese = cell(row[7]);
+
+      if (english && vietnamese) {
+        rightWords.push({
+          english,
+          pronunciation,
+          vietnamese
+        });
+      }
+    }
+
+    // File Excel thông thường có 3 cột
+    if (row.length === 3 && !isNumber(row[0])) {
+      const english = cell(row[0]);
+      const pronunciation = cell(row[1]);
+      const vietnamese = cell(row[2]);
+
+      if (
+        english &&
+        vietnamese &&
+        !isHeader(english)
+      ) {
+        leftWords.push({
+          english,
+          pronunciation,
+          vietnamese
+        });
+      }
+    }
   }
+
+  // Hết cột trái rồi mới đến cột phải
+  return [...leftWords, ...rightWords];
+}
+
 
   function renderPreview(words) {
     tableBox.replaceChildren();
