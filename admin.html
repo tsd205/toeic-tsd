@@ -60,20 +60,17 @@
         <p>Chỉ xóa từ vựng của Test được chọn ở trên, không xóa Test.</p>
         <button id="deleteAllWords" class="danger" type="button">🗑️ Xóa toàn bộ từ vựng của Test này</button>
       </div>
-      <details>
-    <summary style="
-        cursor: pointer;
-        padding: 12px;
-        font-weight: bold;
-        color: #4d85ff;
-    ">
-        📚 Hiện / Ẩn danh sách từ vựng
-    </summary>
+      <h3>📚 Danh sách từ vựng</h3>
+<button
+    type="button"
+    id="toggleWordList"
+    onclick="toggleWordList()">
+    👁 Hiện danh sách từ vựng
+</button>
 
-    <div id="wordList">
-        Chọn Test để xem từ vựng.
-    </div>
-</details>
+<div id="wordList" style="display: none;">
+    Chọn Test để xem từ vựng.
+</div>
     </section>
     <section class="panel" id="resultsPanel">
       <h2>📊 Kết quả học tập của học viên</h2>
