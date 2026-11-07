@@ -1,6 +1,11 @@
 
-/* ===== MÀU GIAO DIỆN SÁNG ===== */
-:root {
+/* ==========================================
+   TOEIC TSD - GLOBAL LIGHT / DARK THEME
+   ========================================== */
+
+/* ===== CHẾ ĐỘ SÁNG ===== */
+:root,
+html[data-theme="light"] {
   color-scheme: light;
 
   --bg: #ffffff;
@@ -8,74 +13,163 @@
   --text: #111111;
   --muted: #555555;
   --line: #dddddd;
-  --accent: #2563eb;
-  --soft: #f3f6fc;
+  --accent: #315cff;
+  --soft: #f5f5f5;
+  --input-bg: #ffffff;
 }
 
-/* ===== MÀU GIAO DIỆN TỐI ===== */
+/* ===== CHẾ ĐỘ TỐI ===== */
 html[data-theme="dark"] {
   color-scheme: dark;
 
   --bg: #090909;
   --surface: #171717;
   --text: #ffffff;
-  --muted: #bdbdbd;
+  --muted: #c5c5c5;
   --line: #383838;
   --accent: #78a9ff;
   --soft: #242424;
+  --input-bg: #1c1c1c;
 }
 
-/* ===== NỀN VÀ CHỮ ===== */
+/* ===== NỀN TOÀN WEBSITE ===== */
 html,
-body {
-  background: var(--bg) !important;
+body,
+.wrap,
+.learning,
+.admin {
+  background-color: var(--bg) !important;
   color: var(--text) !important;
 }
 
+/* ===== KHUNG NỘI DUNG ===== */
 .card,
 .panel,
-.admin .panel {
-  background: var(--surface) !important;
-  color: var(--text) !important;
-  border: 1px solid var(--line);
-}
-
-p,
-.note {
-  color: var(--muted);
-}
-
-h1,
-h2,
-h3,
-label,
-strong,
-legend {
-  color: var(--text);
-}
-
-input,
-textarea,
-select {
-  background: var(--surface) !important;
+.admin .panel,
+.test-card,
+.test-dropdown,
+.test-words,
+.admin-details,
+.result-details {
+  background-color: var(--surface) !important;
   color: var(--text) !important;
   border-color: var(--line) !important;
 }
 
-input::placeholder,
-textarea::placeholder {
+/* ===== CHỮ ===== */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+label,
+legend,
+strong,
+summary {
+  color: var(--text);
+}
+
+p,
+.note,
+.word-info,
+.small-muted {
   color: var(--muted);
 }
 
+/* ===== LIÊN KẾT ===== */
 a,
 .brand,
 .learning a {
   color: var(--accent) !important;
 }
 
-.choice,
-.learning fieldset {
+/* ===== Ô NHẬP LIỆU ===== */
+input,
+textarea,
+select {
+  background-color: var(--input-bg) !important;
+  color: var(--text) !important;
   border-color: var(--line) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted) !important;
+  opacity: .8;
+}
+
+/* ===== DANH SÁCH TEST ===== */
+.choice,
+.learning fieldset,
+.test-dropdown .choice {
+  background-color: var(--surface);
+  color: var(--text);
+  border-color: var(--line) !important;
+}
+
+/* ===== BẢNG KẾT QUẢ ===== */
+table,
+th,
+td {
+  color: var(--text);
+  border-color: var(--line) !important;
+}
+
+thead,
+.results-table thead {
+  background-color: var(--soft);
+}
+
+tbody tr {
+  background-color: var(--surface);
+}
+
+/* ===== THỐNG KÊ ===== */
+.profile-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.stat {
+  background-color: var(--soft) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.stat b {
+  font-size: 23px;
+  color: var(--accent);
+}
+
+/* ===== NÚT CHỨC NĂNG ===== */
+button {
+  cursor: pointer;
+}
+
+/* Giữ màu xanh đặc trưng TOEIC */
+button:not(.theme-toggle):not(.eye-toggle):not(.danger):not(.test-open) {
+  background-color: #315cff;
+  color: #ffffff;
+}
+
+/* Nút xóa */
+button.danger,
+.admin .danger,
+.admin .test-icon.danger,
+.admin .word-actions button.danger {
+  background-color: #dc3545 !important;
+  color: #ffffff !important;
+}
+
+/* Nút mở Test */
+.admin .test-open {
+  background: transparent !important;
+  color: var(--text) !important;
 }
 
 /* ===== NÚT SÁNG / TỐI ===== */
@@ -86,7 +180,7 @@ a,
   border-radius: 999px !important;
   white-space: nowrap;
 
-  background: #171717 !important;
+  background: #111111 !important;
   color: #ffffff !important;
   border: 1px solid #444444 !important;
 
@@ -146,31 +240,6 @@ html[data-theme="dark"] .theme-toggle {
   margin: 0;
 }
 
-/* ===== THỐNG KÊ ===== */
-.profile-grid {
-  display: grid;
-  grid-template-columns:
-    repeat(auto-fit, minmax(180px, 1fr));
-  gap: 14px;
-}
-
-.stat {
-  background: var(--soft);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 16px;
-}
-
-.stat b {
-  font-size: 23px;
-  color: var(--accent);
-}
-
-.small-muted {
-  font-size: 13px;
-  color: var(--muted);
-}
-
 /* ===== TRANG CÁ NHÂN ===== */
 .profile-footer {
   text-align: center;
@@ -187,7 +256,7 @@ html[data-theme="dark"] .theme-toggle {
   color: var(--muted);
 }
 
-/* ===== RESPONSIVE ===== */
+/* ===== HIỂN THỊ TRÊN ĐIỆN THOẠI ===== */
 @media (max-width: 600px) {
   .learning header {
     align-items: flex-start;
