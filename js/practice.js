@@ -17,6 +17,13 @@
       .toLocaleLowerCase("vi")
       .replace(/\s+/g, " ")
       .replace(/[.!?]+$/g, "")
+      // Chấp nhận i / y trong các từ thông dụng
+      .replace(/\bkỳ\b/g, "kì")
+      .replace(/\bquý\b/g, "quí")
+      .replace(/\blý\b/g, "lí")
+      .replace(/\bmỹ\b/g, "mĩ")
+      .replace(/\bkỹ\b/g, "kĩ")
+      .replace(/\btỷ\b/g, "tỉ")
       // Chấp nhận hai cách đặt dấu tiếng Việt
       .replace(/òa/g, "oà")
       .replace(/óa/g, "oá")
