@@ -8,6 +8,34 @@
   const $ = id => document.getElementById(id);
   const progress = $("progress");
 
+  // ===== CHUẨN HÓA ĐÁP ÁN =====
+
+  function normalizeAnswer(value) {
+    return String(value ?? "")
+      .normalize("NFC")
+      .trim()
+      .toLocaleLowerCase("vi")
+      .replace(/\s+/g, " ")
+      .replace(/[.!?]+$/g, "")
+      // Chấp nhận hai cách đặt dấu tiếng Việt
+      .replace(/òa/g, "oà")
+      .replace(/óa/g, "oá")
+      .replace(/ỏa/g, "oả")
+      .replace(/õa/g, "oã")
+      .replace(/ọa/g, "oạ")
+      .replace(/òe/g, "oè")
+      .replace(/óe/g, "oé")
+      .replace(/ỏe/g, "oẻ")
+      .replace(/õe/g, "oẽ")
+      .replace(/ọe/g, "oẹ")
+      .replace(/ùy/g, "uỳ")
+      .replace(/úy/g, "uý")
+      .replace(/ủy/g, "uỷ")
+      .replace(/ũy/g, "uỹ")
+      .replace(/ụy/g, "uỵ")
+      .normalize("NFC");
+  }
+
   // ===== LẤY TEST ĐÃ CHỌN =====
 
   let selection;
@@ -16,7 +44,9 @@
     selection = JSON.parse(
       sessionStorage.getItem("toeic_selection") || "null"
     );
-  } catch {}
+  } catch {
+    selection = null;
+  }
 
   if (
     !selection ||
@@ -51,7 +81,7 @@
     return;
   }
 
-  const validIds = tests.map(t => t.id);
+  const validIds = (tests || []).map(t => t.id);
 
   if (!validIds.length) {
     progress.textContent =
@@ -82,9 +112,10 @@
       return;
     }
 
-    words.push(...data);
+    const batch = data || [];
+    words.push(...batch);
 
-    if (data.length < 500) break;
+    if (batch.length < 500) break;
   }
 
   if (!words.length) {
@@ -129,13 +160,6 @@
 
   exercise.hidden = false;
 
-  const normalize = s =>
-    s.normalize("NFC")
-      .trim()
-      .toLocaleLowerCase("vi")
-      .replace(/\s+/g, " ")
-      .replace(/[.!?]+$/g, "");
-
   // ===== PHÁT ÂM + GIẢM NHẠC =====
 
   let speechId = 0;
@@ -154,7 +178,7 @@
     utterance.lang = "en-US";
     utterance.rate = 0.85;
 
-    // Nhạc nền nhỏ xuống khi đọc
+    // Giảm âm lượng nhạc khi đọc
     window.TOEIC_LOFI?.duckMusic();
 
     const finishSpeech = () => {
@@ -174,6 +198,7 @@
     }
   };
 
+  // Vẫn giữ nút Nghe để đọc lại từ
   $("speak").onclick = speak;
 
   // ===== HIỂN THỊ TỪ HIỆN TẠI =====
@@ -215,17 +240,20 @@
     const englishInput = $("answerEnglish");
     const vietnameseInput = $("answerVietnamese");
 
+    // Chấm tiếng Anh
     const en =
-      normalize(englishInput.value) ===
-      normalize(word.english);
+      normalizeAnswer(englishInput.value) ===
+      normalizeAnswer(word.english);
 
+    // Chấm nghĩa tiếng Việt
     // Chấp nhận nhiều nghĩa phân cách bằng ;
-    const vi = word.vietnamese
+    // Chấp nhận cả "khỏe" và "khoẻ"
+    const vi = String(word.vietnamese ?? "")
       .split(";")
       .some(
-        v =>
-          normalize(vietnameseInput.value) ===
-          normalize(v)
+        meaning =>
+          normalizeAnswer(vietnameseInput.value) ===
+          normalizeAnswer(meaning)
       );
 
     if (en) englishCorrect++;
@@ -239,7 +267,8 @@
       vi
     });
 
-    // Hiển thị kết quả
+    // ===== HIỂN THỊ KẾT QUẢ =====
+
     feedback.replaceChildren();
 
     const p = document.createElement("p");
@@ -340,7 +369,12 @@
     index++;
 
     if (index < words.length) {
+      // Hiển thị từ mới
       render();
+
+      // TỰ ĐỘNG ĐỌC TỪ MỚI
+      speak();
+
       return;
     }
 
@@ -365,6 +399,7 @@
     h.textContent = "Kết quả luyện tập";
 
     const p = document.createElement("p");
+
     p.textContent =
       `Tổng ${words.length} từ · ` +
       `Tiếng Anh đúng ${englishCorrect}/${words.length} · ` +
@@ -397,4 +432,7 @@
   // ===== KHỞI ĐỘNG =====
 
   render();
+
+  // Tự đọc từ đầu tiên nếu trình duyệt cho phép
+  speak();
 })();
