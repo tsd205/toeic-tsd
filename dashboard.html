@@ -17,6 +17,9 @@
   <link rel="stylesheet" href="css/lofi.css?v=3">
   <link rel="stylesheet" href="css/snow.css?v=1">
 
+  <!-- CSS Streak -->
+  <link rel="stylesheet" href="css/streak.css?v=1">
+
   <style>
     .test-dropdown {
       margin: 18px 0;
@@ -149,6 +152,15 @@
 
       <p id="role"></p>
 
+      <!-- STREAK: CHUỖI NGÀY HỌC -->
+      <section
+        id="toeicStreak"
+        class="streak-card"
+        aria-label="Chuỗi ngày học liên tục"
+      >
+        Đang tải chuỗi ngày học...
+      </section>
+
       <p>
         Chọn một hoặc nhiều Test để luyện tập.
       </p>
@@ -240,6 +252,9 @@
   <script src="js/config.js"></script>
   <script src="js/auth.js"></script>
 
+  <!-- STREAK -->
+  <script src="js/streak.js?v=1"></script>
+
   <!-- XỬ LÝ CHỌN TEST -->
   <script>
     (async () => {
@@ -248,6 +263,10 @@
       if (!user) return;
 
       const $ = id => document.getElementById(id);
+
+      // ===== TẢI STREAK =====
+      // Không chặn việc tải danh sách Test
+      window.TOEIC_STREAK.mount(user.id);
 
       // ===== THÔNG TIN NGƯỜI DÙNG =====
 
