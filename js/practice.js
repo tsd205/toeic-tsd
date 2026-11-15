@@ -311,6 +311,25 @@
       window.TOEIC_LOFI?.wrong(feedback);
     }
   };
+  <script>
+    document.addEventListener("keydown", function (event) {
+      if (event.key !== "Enter" || event.repeat || event.isComposing) {
+        return;
+      }
+  
+      const nextButton = document.getElementById("next");
+  
+      if (
+        nextButton &&
+        !nextButton.hidden &&
+        !nextButton.disabled &&
+        nextButton.getClientRects().length > 0
+      ) {
+        event.preventDefault();
+        nextButton.click();
+      }
+    });
+  </script>
 
   // ===== LƯU KẾT QUẢ VÀO SUPABASE =====
 
