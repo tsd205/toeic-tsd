@@ -17,14 +17,12 @@
       .toLocaleLowerCase("vi")
       .replace(/\s+/g, " ")
       .replace(/[.!?]+$/g, "")
-      // Chấp nhận i / y trong các từ thông dụng
       .replace(/\bkỳ\b/g, "kì")
       .replace(/\bquý\b/g, "quí")
       .replace(/\blý\b/g, "lí")
       .replace(/\bmỹ\b/g, "mĩ")
       .replace(/\bkỹ\b/g, "kĩ")
       .replace(/\btỷ\b/g, "tỉ")
-      // Chấp nhận hai cách đặt dấu tiếng Việt
       .replace(/òa/g, "oà")
       .replace(/óa/g, "oá")
       .replace(/ỏa/g, "oả")
@@ -100,7 +98,7 @@
     tests.map(t => [t.id, t.title])
   );
 
-  // ===== TẢI TỪ VỰNG (PHÂN TRANG) =====
+  // ===== TẢI TỪ VỰNG =====
 
   let words = [];
 
@@ -185,7 +183,6 @@
     utterance.lang = "en-US";
     utterance.rate = 0.85;
 
-    // Giảm âm lượng nhạc khi đọc
     window.TOEIC_LOFI?.duckMusic();
 
     const finishSpeech = () => {
@@ -205,13 +202,11 @@
     }
   };
 
-  // Vẫn giữ nút Nghe để đọc lại từ
   $("speak").onclick = speak;
 
   // ===== HIỂN THỊ TỪ HIỆN TẠI =====
 
   function render() {
-    // Hủy giọng đọc cũ khi chuyển từ
     ++speechId;
 
     if ("speechSynthesis" in window) {
@@ -247,14 +242,10 @@
     const englishInput = $("answerEnglish");
     const vietnameseInput = $("answerVietnamese");
 
-    // Chấm tiếng Anh
     const en =
       normalizeAnswer(englishInput.value) ===
       normalizeAnswer(word.english);
 
-    // Chấm nghĩa tiếng Việt
-    // Chấp nhận nhiều nghĩa phân cách bằng ;
-    // Chấp nhận cả "khỏe" và "khoẻ"
     const vi = String(word.vietnamese ?? "")
       .split(";")
       .some(
@@ -311,30 +302,46 @@
       window.TOEIC_LOFI?.wrong(feedback);
     }
   };
-  <script>
-    document.addEventListener("keydown", function (event) {
-      if (event.key !== "Enter" || event.repeat || event.isComposing) {
-        return;
-      }
-  
-      const nextButton = document.getElementById("next");
-  
-      if (
-        nextButton &&
-        !nextButton.hidden &&
-        !nextButton.disabled &&
-        nextButton.getClientRects().length > 0
-      ) {
-        event.preventDefault();
-        nextButton.click();
-      }
-    });
-  </script>
+
+  // ===== ENTER: KIỂM TRA / CHUYỂN TỪ =====
+
+  document.addEventListener("keydown", event => {
+    if (
+      event.key !== "Enter" ||
+      event.repeat ||
+      event.isComposing
+    ) {
+      return;
+    }
+
+    // Không can thiệp khi đang nhập bằng bộ gõ tiếng Việt
+    const target = event.target;
+
+    if (
+      target instanceof HTMLElement &&
+      target.closest("textarea, [contenteditable=true]")
+    ) {
+      return;
+    }
+
+    // Đã chấm xong: Enter chuyển sang từ tiếp theo
+    if (
+      !exercise.hidden &&
+      !next.hidden &&
+      !next.disabled
+    ) {
+      event.preventDefault();
+      next.click();
+      return;
+    }
+
+    // Đang nhập: Enter dùng chức năng kiểm tra
+    // có sẵn của form.
+  });
 
   // ===== LƯU KẾT QUẢ VÀO SUPABASE =====
 
   async function saveResults() {
-    // Lưu riêng kết quả cho từng Test
     const grouped = new Map();
 
     for (const a of submitted) {
@@ -395,7 +402,6 @@
     index++;
 
     if (index < words.length) {
-      // Hiển thị từ mới
       render();
 
       // TỰ ĐỘNG ĐỌC TỪ MỚI
