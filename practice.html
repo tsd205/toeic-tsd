@@ -97,6 +97,27 @@
 
     </section>
   </main>
+  
+  <script>
+    document.addEventListener("keydown", function (event) {
+      if (event.key !== "Enter" || event.repeat || event.isComposing) {
+        return;
+      }
+  
+      const nextButton = document.getElementById("next");
+  
+      if (
+        nextButton &&
+        !nextButton.hidden &&
+        !nextButton.disabled &&
+        nextButton.getClientRects().length > 0
+      ) {
+        event.preventDefault();
+        nextButton.click();
+      }
+    });
+  </script>
+
 
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -109,6 +130,7 @@
   <!-- Nhạc Midnight Study + Tuyết rơi -->
   <script src="js/lofi.js?v=3" defer></script>
   <script src="js/snow.js?v=1" defer></script>
+  
 
 </body>
 </html>
